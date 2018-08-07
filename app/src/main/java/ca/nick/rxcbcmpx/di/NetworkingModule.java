@@ -25,19 +25,19 @@ public class NetworkingModule {
     @Singleton
     @Provides
     public AggregateApiService aggregateApiService(Retrofit.Builder builder) {
-        return createService(builder, "https://www.cbc.ca/aggregate_api/v1/", AggregateApiService.class);
+        return createService(builder, AggregateApiService.BASE_URL, AggregateApiService.class);
     }
 
     @Singleton
     @Provides
     public PolopolyService polopolyService(Retrofit.Builder builder) {
-        return createService(builder, "https://www.cbc.ca/json/cmlink/", PolopolyService.class);
+        return createService(builder, PolopolyService.BASE_URL, PolopolyService.class);
     }
 
     @Singleton
     @Provides
     public MpxService mpxService(Retrofit.Builder builder) {
-        return createService(builder, "https://tpfeed.cbc.ca/", MpxService.class);
+        return createService(builder, MpxService.BASE_URL, MpxService.class);
     }
 
     private <T> T createService(Retrofit.Builder builder, String baseUrl, Class<T> clazz) {

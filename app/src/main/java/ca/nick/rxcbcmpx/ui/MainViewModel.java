@@ -29,7 +29,7 @@ public class MainViewModel extends ViewModel {
     }
 
     public void loadVideos() {
-        compositeDisposable.add(videoRepository.fetchVideos());
+        compositeDisposable.add(videoRepository.fetchAndPersistVideos());
     }
 
     @Override

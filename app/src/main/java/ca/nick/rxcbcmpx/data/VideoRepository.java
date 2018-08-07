@@ -46,7 +46,7 @@ public class VideoRepository {
         return localVideoItems;
     }
 
-    public Disposable fetchVideos() {
+    public Disposable fetchAndPersistVideos() {
         Completable nukeDatabase = Completable.fromAction(cbcDatabase.videoDao()::nuke);
 
         Observable<String> fetchVideoContent = aggregateApiService.topStoriesVideos()
