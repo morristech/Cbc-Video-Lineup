@@ -61,8 +61,11 @@ public class LineupItem {
         return readableUpdatedAt;
     }
 
-    public boolean isPolopolySource() {
-        return "polopoly".equalsIgnoreCase(source);
+    public boolean isValidPolopolySource() {
+        return "polopoly".equalsIgnoreCase(source)
+                // FIXME
+//                && !sourceId.startsWith("1.2")
+                ;
     }
 
     public boolean isMpxSource() {

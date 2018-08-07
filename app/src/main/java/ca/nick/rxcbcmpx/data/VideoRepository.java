@@ -51,11 +51,13 @@ public class VideoRepository {
 
         Observable<String> fetchVideoContent = aggregateApiService.topStoriesVideos()
                 .flatMap(Observable::fromIterable)
-                // FIXME: Use Mpx lineup content as well
-                .filter(LineupItem::isPolopolySource)
                 .map(LineupItem::getSourceId)
-                // FIXME: Some polopoly source ids yield 404 errors, e.g. 1.2881603
-                .flatMap(polopolyService::story)
+                // TODO: Make mps.theplatform.com link work, not just polopoly id
+                .flatMap(sourceId -> polopolyService.story(sourceId)
+                        .onErrorResumeNext(__ -> {
+                            Log.e(TAG, "Erroneous source ID: " + sourceId);
+                            return Observable.empty();
+                        }))
                 .map(PolopolyItem::toString);
 
         return nukeDatabase
