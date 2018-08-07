@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +19,8 @@ import ca.nick.rxcbcmpx.models.VideoItem;
 import dagger.android.support.DaggerAppCompatActivity;
 
 public class MainActivity extends DaggerAppCompatActivity {
+
+    private static final String TAG = "cbc";
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -39,6 +42,13 @@ public class MainActivity extends DaggerAppCompatActivity {
 
     private void renderVideoItems(List<VideoItem> videoItems) {
         progressBar.setVisibility(View.INVISIBLE);
+
+        if (videoItems == null) {
+            // TODO: Submitlist empty?
+            return;
+        }
+
+        Log.d(TAG, videoItems.size() + "");
     }
 
     private void loadVideos() {

@@ -8,11 +8,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import ca.nick.rxcbcmpx.models.LineupItem;
-import ca.nick.rxcbcmpx.models.PolopolyItem;
 import ca.nick.rxcbcmpx.models.VideoItem;
 import ca.nick.rxcbcmpx.networking.AggregateApiService;
-import ca.nick.rxcbcmpx.networking.MpxService;
+import ca.nick.rxcbcmpx.networking.ThePlatformService;
+import ca.nick.rxcbcmpx.networking.TpFeedService;
 import ca.nick.rxcbcmpx.networking.PolopolyService;
 import ca.nick.rxcbcmpx.utils.RxExtensions;
 import io.reactivex.Completable;
@@ -28,17 +27,20 @@ public class VideoRepository {
     private MediatorLiveData<List<VideoItem>> localVideoItems = new MediatorLiveData<>();
     private final AggregateApiService aggregateApiService;
     private final PolopolyService polopolyService;
-    private final MpxService mpxService;
+    private final TpFeedService tpFeedService;
+    private final ThePlatformService thePlatformService;
 
     @Inject
     public VideoRepository(CbcDatabase cbcDatabase,
                            AggregateApiService aggregateApiService,
                            PolopolyService polopolyService,
-                           MpxService mpxService) {
+                           TpFeedService tpFeedService,
+                           ThePlatformService thePlatformService) {
         this.cbcDatabase = cbcDatabase;
         this.aggregateApiService = aggregateApiService;
         this.polopolyService = polopolyService;
-        this.mpxService = mpxService;
+        this.tpFeedService = tpFeedService;
+        this.thePlatformService = thePlatformService;
 
         localVideoItems.addSource(cbcDatabase.videoDao().videoItems(), localVideoItems::setValue);
     }
@@ -50,35 +52,34 @@ public class VideoRepository {
     public Disposable fetchAndPersistVideos() {
         Completable nukeDatabase = createNuke();
 
-        // TODO: Use Retrofit.Response<?> to inspect any potential errors?
-        Flowable<String> fetchNewVideoContent = aggregateApiService.topStoriesVideos()
-                // FIXME: Use retryWhen and Log error
+        Completable fetchThenPersistNewVideoContent = aggregateApiService.topStoriesVideos()
                 .retry(NUM_RETRY_ATTEMPTS)
                 .flatMap(Flowable::fromIterable)
-                .map(LineupItem::getSourceId)
-                // TODO: Make mps.theplatform.com link work, not just polopoly id
-                // TODO: Use Retrofit.Response to inspect status codes
-                .flatMap(sourceId -> polopolyService.story(sourceId)
-                        .onErrorResumeNext(__ -> {
-                            Log.e(TAG, "Erroneous source ID: " + sourceId);
-                            return Flowable.empty();
-                        }))
-                .map(PolopolyItem::toString);
+                .flatMap(lineupItem -> polopolyService.stories(lineupItem.getSourceId())
+                        .onErrorResumeNext(Flowable.empty())) // TODO: Make mpx.theplatform.com link work, not just polopoly sources
+                .flatMap(polopolyItem -> tpFeedService.tpFeedItems(polopolyItem.getMediaid()))
+                .flatMap(tpFeedItem -> thePlatformService.thePlatformItems(tpFeedItem.getSmilUrlId())
+                        .onErrorResumeNext(Flowable.empty()))
+                .flatMapCompletable(thePlatformItem -> insertLocally(new VideoItem(thePlatformItem.getGuid(), thePlatformItem.getUrl())));
 
         return nukeDatabase
-                .andThen(fetchNewVideoContent)
-                .compose(RxExtensions.applySchedulersFlowable())
-                .subscribe(s -> Log.d(TAG, s), Throwable::printStackTrace);
+                .concatWith(fetchThenPersistNewVideoContent)
+                .compose(RxExtensions.applySchedulers())
+                .subscribe();
     }
 
     public Disposable nuke() {
         return createNuke()
-                .compose(RxExtensions.applySchedulersCompletable())
+                .compose(RxExtensions.applySchedulers())
                 .subscribe(() -> Log.d(TAG, "Nuking complete"),
                         Throwable::printStackTrace);
     }
 
     private Completable createNuke() {
         return Completable.fromAction(cbcDatabase.videoDao()::nuke);
+    }
+
+    private Completable insertLocally(VideoItem videoItem) {
+        return Completable.fromAction(() -> cbcDatabase.videoDao().insertVideoItem(videoItem));
     }
 }

@@ -10,5 +10,5 @@ public interface PolopolyService {
     String BASE_URL = "https://www.cbc.ca/json/cmlink/";
 
     @GET("{sourceId}")
-    Flowable<PolopolyItem> story(@Path("sourceId") String sourceId);
+    Flowable<PolopolyItem> stories(@Path("sourceId") String sourceId);
 }

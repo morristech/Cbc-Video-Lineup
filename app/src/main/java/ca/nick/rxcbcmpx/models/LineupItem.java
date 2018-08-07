@@ -82,21 +82,6 @@ public class LineupItem {
         return "mpx".equalsIgnoreCase(source);
     }
 
-    @Override
-    public String toString() {
-        return "LineupItem{" +
-                "title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", source='" + source + '\'' +
-                ", sourceId='" + sourceId + '\'' +
-                ", publishedAt=" + publishedAt +
-                ", readablePublishedAt='" + readablePublishedAt + '\'' +
-                ", updatedAt=" + updatedAt +
-                ", readableUpdatedAt='" + readableUpdatedAt + '\'' +
-                ", typeAttributes=" + typeAttributes +
-                '}';
-    }
-
     public static class TypeAttributes {
 
         private final String url;
@@ -107,13 +92,6 @@ public class LineupItem {
 
         public String getUrl() {
             return url;
-        }
-
-        @Override
-        public String toString() {
-            return "TypeAttributes{" +
-                    "url='" + url + '\'' +
-                    '}';
         }
     }
 }
