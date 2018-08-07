@@ -11,13 +11,17 @@ import ca.nick.rxcbcmpx.models.VideoItem;
 public abstract class CbcDatabase extends RoomDatabase {
 
     private static final String NAME = "cbcDatabase.db";
-    private static CbcDatabase sInstance;
+    private static volatile CbcDatabase sInstance;
 
     public abstract VideoDao videoDao();
 
     public static CbcDatabase getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = create(context);
+            synchronized (CbcDatabase.class) {
+                if (sInstance == null) {
+                    sInstance = create(context);
+                }
+            }
         }
 
         return sInstance;
