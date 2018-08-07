@@ -32,9 +32,14 @@ public class MainViewModel extends ViewModel {
         compositeDisposable.add(videoRepository.fetchAndPersistVideos());
     }
 
+    public void nuke() {
+        compositeDisposable.clear();
+        compositeDisposable.add(videoRepository.nuke());
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();
-        compositeDisposable.clear();
+        compositeDisposable.dispose();
     }
 }

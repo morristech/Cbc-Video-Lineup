@@ -22,6 +22,7 @@ import io.reactivex.disposables.Disposable;
 public class VideoRepository {
 
     private static final String TAG = "cbc";
+    private static final int NUM_RETRY_ATTEMPTS = 3;
 
     private final CbcDatabase cbcDatabase;
     private MediatorLiveData<List<VideoItem>> localVideoItems = new MediatorLiveData<>();
@@ -47,12 +48,16 @@ public class VideoRepository {
     }
 
     public Disposable fetchAndPersistVideos() {
-        Completable nukeDatabase = Completable.fromAction(cbcDatabase.videoDao()::nuke);
+        Completable nukeDatabase = createNuke();
 
-        Flowable<String> fetchVideoContent = aggregateApiService.topStoriesVideos()
+        // TODO: Use Retrofit.Response<?> to inspect any potential errors?
+        Flowable<String> fetchNewVideoContent = aggregateApiService.topStoriesVideos()
+                // FIXME: Use retryWhen and Log error
+                .retry(NUM_RETRY_ATTEMPTS)
                 .flatMap(Flowable::fromIterable)
                 .map(LineupItem::getSourceId)
                 // TODO: Make mps.theplatform.com link work, not just polopoly id
+                // TODO: Use Retrofit.Response to inspect status codes
                 .flatMap(sourceId -> polopolyService.story(sourceId)
                         .onErrorResumeNext(__ -> {
                             Log.e(TAG, "Erroneous source ID: " + sourceId);
@@ -61,8 +66,19 @@ public class VideoRepository {
                 .map(PolopolyItem::toString);
 
         return nukeDatabase
-                .andThen(fetchVideoContent)
-                .compose(RxExtensions.applySchedulers())
+                .andThen(fetchNewVideoContent)
+                .compose(RxExtensions.applySchedulersFlowable())
                 .subscribe(s -> Log.d(TAG, s), Throwable::printStackTrace);
+    }
+
+    public Disposable nuke() {
+        return createNuke()
+                .compose(RxExtensions.applySchedulersCompletable())
+                .subscribe(() -> Log.d(TAG, "Nuking complete"),
+                        Throwable::printStackTrace);
+    }
+
+    private Completable createNuke() {
+        return Completable.fromAction(cbcDatabase.videoDao()::nuke);
     }
 }

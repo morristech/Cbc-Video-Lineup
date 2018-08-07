@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">RxCbcMpx</string>
+    <string name="app_name">RxCbc</string>
+    <string name="download_videos">Download videos</string>
+    <string name="delete_videos">Delete all videos</string>
 </resources>

@@ -3,8 +3,11 @@ package ca.nick.rxcbcmpx.ui;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import java.util.List;
 
@@ -14,14 +17,13 @@ import ca.nick.rxcbcmpx.R;
 import ca.nick.rxcbcmpx.models.VideoItem;
 import dagger.android.support.DaggerAppCompatActivity;
 
-public class MainActivity extends DaggerAppCompatActivity
-        implements SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends DaggerAppCompatActivity {
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
     private MainViewModel viewModel;
     private RecyclerView recyclerView;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,24 +31,54 @@ public class MainActivity extends DaggerAppCompatActivity
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.recyclerView);
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this);
+        progressBar = findViewById(R.id.progressBar);
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
         viewModel.getLocalVideoItems().observe(this, this::renderVideoItems);
-
-        if (savedInstanceState == null) {
-            viewModel.loadVideos();
-        }
     }
 
     private void renderVideoItems(List<VideoItem> videoItems) {
-        swipeRefreshLayout.setRefreshing(false);
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    private void loadVideos() {
+        setLoading();
+        viewModel.loadVideos();
+    }
+
+    private void purgeVideos() {
+        setLoading();
+        viewModel.nuke();
+    }
+
+    private void setLoading() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private boolean isLoading() {
+        return progressBar.getVisibility() == View.VISIBLE;
     }
 
     @Override
-    public void onRefresh() {
-        swipeRefreshLayout.setRefreshing(true);
-        viewModel.loadVideos();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.downloadVideos: {
+                if (!isLoading()) {
+                    loadVideos();
+                }
+                return true;
+            }
+            case R.id.deleteAllVideos: {
+                purgeVideos();
+                return true;
+            }
+            default: return super.onOptionsItemSelected(item);
+        }
     }
 }

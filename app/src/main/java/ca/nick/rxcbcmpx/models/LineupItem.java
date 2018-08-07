@@ -2,6 +2,7 @@ package ca.nick.rxcbcmpx.models;
 
 public class LineupItem {
 
+    private final String id;
     private final String title;
     private final String description;
     private final String source;
@@ -10,15 +11,18 @@ public class LineupItem {
     private final String readablePublishedAt;
     private final long updatedAt;
     private final String readableUpdatedAt;
+    private final TypeAttributes typeAttributes;
 
-    public LineupItem(String title,
+    public LineupItem(String id, String title,
                       String description,
                       String source,
                       String sourceId,
                       long publishedAt,
                       String readablePublishedAt,
                       long updatedAt,
-                      String readableUpdatedAt) {
+                      String readableUpdatedAt,
+                      TypeAttributes typeAttributes) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.source = source;
@@ -27,6 +31,11 @@ public class LineupItem {
         this.readablePublishedAt = readablePublishedAt;
         this.updatedAt = updatedAt;
         this.readableUpdatedAt = readableUpdatedAt;
+        this.typeAttributes = typeAttributes;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getTitle() {
@@ -61,11 +70,12 @@ public class LineupItem {
         return readableUpdatedAt;
     }
 
-    public boolean isValidPolopolySource() {
-        return "polopoly".equalsIgnoreCase(source)
-                // FIXME
-//                && !sourceId.startsWith("1.2")
-                ;
+    public TypeAttributes getTypeAttributes() {
+        return typeAttributes;
+    }
+
+    public boolean isPolopolySource() {
+        return "polopoly".equalsIgnoreCase(source);
     }
 
     public boolean isMpxSource() {
@@ -83,6 +93,27 @@ public class LineupItem {
                 ", readablePublishedAt='" + readablePublishedAt + '\'' +
                 ", updatedAt=" + updatedAt +
                 ", readableUpdatedAt='" + readableUpdatedAt + '\'' +
+                ", typeAttributes=" + typeAttributes +
                 '}';
+    }
+
+    public static class TypeAttributes {
+
+        private final String url;
+
+        public TypeAttributes(String url) {
+            this.url = url;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        @Override
+        public String toString() {
+            return "TypeAttributes{" +
+                    "url='" + url + '\'' +
+                    '}';
+        }
     }
 }
