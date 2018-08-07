@@ -1,0 +1,13 @@
+package ca.nick.rxcbcmpx.networking;
+
+import java.util.List;
+
+import ca.nick.rxcbcmpx.models.LineupItem;
+import io.reactivex.Observable;
+import retrofit2.http.GET;
+
+public interface AggregateApiService {
+
+    @GET("items?orderLineupId=2.4941&type=video&pageSize=20")
+    Observable<List<LineupItem>> topStoriesVideos();
+}
