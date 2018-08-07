@@ -16,7 +16,7 @@ import ca.nick.rxcbcmpx.networking.MpxService;
 import ca.nick.rxcbcmpx.networking.PolopolyService;
 import ca.nick.rxcbcmpx.utils.RxExtensions;
 import io.reactivex.Completable;
-import io.reactivex.Observable;
+import io.reactivex.Flowable;
 import io.reactivex.disposables.Disposable;
 
 public class VideoRepository {
@@ -49,14 +49,14 @@ public class VideoRepository {
     public Disposable fetchAndPersistVideos() {
         Completable nukeDatabase = Completable.fromAction(cbcDatabase.videoDao()::nuke);
 
-        Observable<String> fetchVideoContent = aggregateApiService.topStoriesVideos()
-                .flatMap(Observable::fromIterable)
+        Flowable<String> fetchVideoContent = aggregateApiService.topStoriesVideos()
+                .flatMap(Flowable::fromIterable)
                 .map(LineupItem::getSourceId)
                 // TODO: Make mps.theplatform.com link work, not just polopoly id
                 .flatMap(sourceId -> polopolyService.story(sourceId)
                         .onErrorResumeNext(__ -> {
                             Log.e(TAG, "Erroneous source ID: " + sourceId);
-                            return Observable.empty();
+                            return Flowable.empty();
                         }))
                 .map(PolopolyItem::toString);
 
