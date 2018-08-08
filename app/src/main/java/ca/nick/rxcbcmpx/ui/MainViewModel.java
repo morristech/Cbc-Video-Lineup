@@ -34,7 +34,7 @@ public class MainViewModel extends ViewModel {
 
     public void nuke() {
         compositeDisposable.clear();
-        compositeDisposable.add(videoRepository.nuke());
+        compositeDisposable.add(videoRepository.launchNuke());
     }
 
     @Override

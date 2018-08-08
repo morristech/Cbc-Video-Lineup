@@ -37,10 +37,12 @@ public class ThePlatformItem {
     }
 
     public String getUrl() {
-        return body.seq.video.src;
+        return body.seq.video != null
+                ? body.seq.video.src
+                : body.seq.par.video.src;
     }
 
-        @Override
+    @Override
     public String toString() {
         return "ThePlatformItem{" +
                 "head=" + head +
@@ -157,8 +159,19 @@ public class ThePlatformItem {
 
             public static class Par {
 
-                public Par() {
+                @Attribute
+                private Video video;
 
+                public Par() {
+                    this(null);
+                }
+
+                public Par(Video video) {
+                    this.video = video;
+                }
+
+                public Video getVideo() {
+                    return video;
                 }
             }
 

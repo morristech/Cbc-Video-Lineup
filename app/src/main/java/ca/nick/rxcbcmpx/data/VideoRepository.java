@@ -50,36 +50,37 @@ public class VideoRepository {
     }
 
     public Disposable fetchAndPersistVideos() {
-        Completable nukeDatabase = createNuke();
-
-        Completable fetchThenPersistNewVideoContent = aggregateApiService.topStoriesVideos()
-                .retry(NUM_RETRY_ATTEMPTS)
-                .flatMap(Flowable::fromIterable)
-                .flatMap(lineupItem -> polopolyService.stories(lineupItem.getSourceId())
-                        .onErrorResumeNext(Flowable.empty())) // TODO: Make mpx.theplatform.com link work, not just polopoly sources
-                .flatMap(polopolyItem -> tpFeedService.tpFeedItems(polopolyItem.getMediaid()))
-                .flatMap(tpFeedItem -> thePlatformService.thePlatformItems(tpFeedItem.getSmilUrlId())
-                        .onErrorResumeNext(Flowable.empty()))
-                .flatMapCompletable(thePlatformItem -> insertLocally(new VideoItem(thePlatformItem.getGuid(), thePlatformItem.getUrl())));
-
-        return nukeDatabase
-                .concatWith(fetchThenPersistNewVideoContent)
+        return nukeDatabase()
+                .andThen(fetchVideoContent())
+                .flatMapCompletable(this::insertLocally)
                 .compose(RxExtensions.applySchedulers())
                 .subscribe();
     }
 
-    public Disposable nuke() {
-        return createNuke()
-                .compose(RxExtensions.applySchedulers())
-                .subscribe(() -> Log.d(TAG, "Nuking complete"),
-                        Throwable::printStackTrace);
+    public Flowable<VideoItem> fetchVideoContent() {
+        return aggregateApiService.topStoriesVideos()
+                .retry(NUM_RETRY_ATTEMPTS)
+                .flatMap(Flowable::fromIterable)
+                .flatMap(lineupItem -> polopolyService.stories(lineupItem.getSourceId())
+                        // Sometimes Polopoly videos are in an "off-time" or "not published" state and will return a 404; discard these
+                        .onErrorResumeNext(Flowable.empty()))
+                .flatMap(polopolyItem -> tpFeedService.tpFeedItems(polopolyItem.getMediaid()))
+                .flatMap(tpFeedItem -> thePlatformService.thePlatformItems(tpFeedItem.getSmilUrlId()))
+                .map(thePlatformItem -> new VideoItem(thePlatformItem.getGuid(), thePlatformItem.getUrl()));
     }
 
-    private Completable createNuke() {
+    private Completable nukeDatabase() {
         return Completable.fromAction(cbcDatabase.videoDao()::nuke);
     }
 
     private Completable insertLocally(VideoItem videoItem) {
         return Completable.fromAction(() -> cbcDatabase.videoDao().insertVideoItem(videoItem));
+    }
+
+    public Disposable launchNuke() {
+        return nukeDatabase()
+                .compose(RxExtensions.applySchedulers())
+                .subscribe(() -> Log.d(TAG, "Nuking complete"),
+                        Throwable::printStackTrace);
     }
 }
