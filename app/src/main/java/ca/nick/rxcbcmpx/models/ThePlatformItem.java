@@ -7,13 +7,14 @@ import org.simpleframework.xml.Root;
 
 import java.util.List;
 
-@Root(name = "smil")
+@Root(name = "smil", strict = false)
 public class ThePlatformItem {
 
     @Element
     private Head head;
     @Element
     private Body body;
+    private TpFeedItem tpFeedItem;
 
     public ThePlatformItem() {
         this(null, null);
@@ -33,21 +34,26 @@ public class ThePlatformItem {
     }
 
     public long getGuid() {
-        return body.seq.video.guid;
+        return findVideo().guid;
     }
 
     public String getUrl() {
-        return body.seq.video != null
-                ? body.seq.video.src
-                : body.seq.par.video.src;
+        return findVideo().src;
     }
 
-    @Override
-    public String toString() {
-        return "ThePlatformItem{" +
-                "head=" + head +
-                ", body=" + body +
-                '}';
+    private Body.Seq.Video findVideo() {
+        return body.seq.video != null
+                ? body.seq.video
+                : body.seq.pars.get(0).video;
+    }
+
+    public ThePlatformItem setTpFeedItem(TpFeedItem tpFeedItem) {
+        this.tpFeedItem = tpFeedItem;
+        return this;
+    }
+
+    public TpFeedItem getTpFeedItem() {
+        return tpFeedItem;
     }
 
     public static class Head {
@@ -65,13 +71,6 @@ public class ThePlatformItem {
 
         public Meta getMeta() {
             return meta;
-        }
-
-        @Override
-        public String toString() {
-            return "Head{" +
-                    "meta=" + meta +
-                    '}';
         }
 
         public static class Meta {
@@ -96,14 +95,6 @@ public class ThePlatformItem {
             public String getContent() {
                 return content;
             }
-
-            @Override
-            public String toString() {
-                return "Meta{" +
-                        "name='" + name + '\'' +
-                        ", content='" + content + '\'' +
-                        '}';
-            }
         }
     }
 
@@ -123,64 +114,84 @@ public class ThePlatformItem {
             return seq;
         }
 
-        @Override
-        public String toString() {
-            return "Body{" +
-                    "seq=" + seq +
-                    '}';
-        }
-
         public static class Seq {
-            @Element
-            private Video video;
             @Element(required = false)
-            private Par par;
+            private Video video;
+            @ElementList(inline = true, required = false)
+            private List<Par> pars;
 
             public Seq() {
                 this(null, null);
             }
 
-            public Seq(Video video, Par par) {
+            public Seq(Video video, List<Par> pars) {
                 this.video = video;
-                this.par = par;
+                this.pars = pars;
             }
 
             public Video getVideo() {
                 return video;
             }
 
-            @Override
-            public String toString() {
-                return "Seq{" +
-                        "video=" + video +
-                        ", par=" + par +
-                        '}';
+            public List<Par> getPars() {
+                return pars;
             }
 
+            @Root(strict = false)
             public static class Par {
 
-                @Attribute
+                @Element
                 private Video video;
+                @ElementList(inline = true, required = false)
+                private List<TextStream> textStreams;
 
                 public Par() {
-                    this(null);
+                    this(null, null);
                 }
 
-                public Par(Video video) {
+                public Par(Video video, List<TextStream> textStreams) {
                     this.video = video;
+                    this.textStreams = textStreams;
                 }
 
                 public Video getVideo() {
                     return video;
+                }
+
+                public List<TextStream> getTextStreams() {
+                    return textStreams;
+                }
+
+                @Root(strict = false)
+                public static class TextStream {
+                    @Attribute
+                    private String src;
+                    @Attribute(required = false)
+                    private String type;
+                    @Attribute(required = false)
+                    private boolean closedCaptions;
+                    @Attribute(required = false)
+                    private String lang;
+
+                    public TextStream() {
+                        this(null, null, false, null);
+                    }
+
+                    public TextStream(String src, String type, boolean closedCaptions, String lang) {
+                        this.src = src;
+                        this.type = type;
+                        this.closedCaptions = closedCaptions;
+                        this.lang = lang;
+                    }
                 }
             }
 
             public static class Video {
                 @Attribute
                 private String src;
-                @Attribute(required = false)
+                @Attribute
                 private String title;
-                @Attribute(name = "abstract", required = false)
+                @Attribute(name = "abstract")
                 private String abstract_;
                 @Attribute(required = false)
                 private String dur;
@@ -206,11 +217,15 @@ public class ThePlatformItem {
                 private String ratings;
                 @Attribute(required = false)
                 private String expression;
+                @Attribute(required = false)
+                private String clipBegin;
+                @Attribute(required = false)
+                private String clipEnd;
                 @ElementList(inline = true, required = false)
                 private List<Param> params;
 
                 public Video() {
-                    this(null, null, null, null, -1, null, null, null, null, null, -1, -1, null, null, null, null);
+                    this(null, null, null, null, -1, null, null, null, null, null, -1, -1, null, null, null, null, null, null);
                 }
 
                 public Video(String src,
@@ -228,7 +243,7 @@ public class ThePlatformItem {
                              String keywords,
                              String ratings,
                              String expression,
-                             List<Param> params) {
+                             String clipBegin, String clipEnd, List<Param> params) {
                     this.src = src;
                     this.title = title;
                     this.abstract_ = abstract_;
@@ -244,6 +259,8 @@ public class ThePlatformItem {
                     this.keywords = keywords;
                     this.ratings = ratings;
                     this.expression = expression;
+                    this.clipBegin = clipBegin;
+                    this.clipEnd = clipEnd;
                     this.params = params;
                 }
 
@@ -307,33 +324,19 @@ public class ThePlatformItem {
                     return expression;
                 }
 
+                public String getClipBegin() {
+                    return clipBegin;
+                }
+
+                public String getClipEnd() {
+                    return clipEnd;
+                }
+
                 public List<Param> getParams() {
                     return params;
                 }
 
-                @Override
-                public String toString() {
-                    return "Video{" +
-                            "src='" + src + '\'' +
-                            ", title='" + title + '\'' +
-                            ", abstract_='" + abstract_ + '\'' +
-                            ", dur='" + dur + '\'' +
-                            ", guid='" + guid + '\'' +
-                            ", categories='" + categories + '\'' +
-                            ", author='" + author + '\'' +
-                            ", copyright='" + copyright + '\'' +
-                            ", provider='" + provider + '\'' +
-                            ", type='" + type + '\'' +
-                            ", height='" + height + '\'' +
-                            ", width='" + width + '\'' +
-                            ", keywords='" + keywords + '\'' +
-                            ", ratings='" + ratings + '\'' +
-                            ", expression='" + expression + '\'' +
-                            ", params=" + params +
-                            '}';
-                }
-
-                @Root
+                @Root(strict = false)
                 public static class Param {
                     @Attribute
                     private String name;
@@ -355,14 +358,6 @@ public class ThePlatformItem {
 
                     public String getValue() {
                         return value;
-                    }
-
-                    @Override
-                    public String toString() {
-                        return "Param{" +
-                                "name='" + name + '\'' +
-                                ", value='" + value + '\'' +
-                                '}';
                     }
                 }
             }

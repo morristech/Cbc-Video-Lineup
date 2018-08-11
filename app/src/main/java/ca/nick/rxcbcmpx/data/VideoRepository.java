@@ -54,7 +54,8 @@ public class VideoRepository {
                 .andThen(fetchVideoContent())
                 .flatMapCompletable(this::insertLocally)
                 .compose(RxExtensions.applySchedulers())
-                .subscribe();
+                .subscribe(() -> Log.d(TAG, "Completed fetching and persisting remote videos"),
+                        Throwable::printStackTrace);
     }
 
     public Flowable<VideoItem> fetchVideoContent() {
@@ -62,11 +63,17 @@ public class VideoRepository {
                 .retry(NUM_RETRY_ATTEMPTS)
                 .flatMap(Flowable::fromIterable)
                 .flatMap(lineupItem -> polopolyService.stories(lineupItem.getSourceId())
-                        // Sometimes Polopoly videos are in an "off-time" or "not published" state and will return a 404; discard these
+                        .doOnNext(polopolyItem -> polopolyItem.setLineupItem(lineupItem))
+                        // Sometimes Polopoly videos are in an "off-time" or "not published" state
+                        // and will return a 404; discard these
                         .onErrorResumeNext(Flowable.empty()))
-                .flatMap(polopolyItem -> tpFeedService.tpFeedItems(polopolyItem.getMediaid()))
-                .flatMap(tpFeedItem -> thePlatformService.thePlatformItems(tpFeedItem.getSmilUrlId()))
-                .map(thePlatformItem -> new VideoItem(thePlatformItem.getGuid(), thePlatformItem.getUrl()));
+                .flatMap(polopolyItem -> tpFeedService.tpFeedItems(polopolyItem.getMediaid())
+                        .doOnNext(tpFeedItem -> tpFeedItem.setPolopolyItem(polopolyItem)))
+                .flatMap(tpFeedItem -> thePlatformService.thePlatformItems(tpFeedItem.getSmilUrlId())
+                        .doOnNext(thePlatformItem -> thePlatformItem.setTpFeedItem(tpFeedItem))
+                        // Discard 404 errors
+                        .onErrorResumeNext(Flowable.empty()))
+                .map(VideoItem::fromRemoteData);
     }
 
     private Completable nukeDatabase() {
@@ -80,7 +87,6 @@ public class VideoRepository {
     public Disposable launchNuke() {
         return nukeDatabase()
                 .compose(RxExtensions.applySchedulers())
-                .subscribe(() -> Log.d(TAG, "Nuking complete"),
-                        Throwable::printStackTrace);
+                .subscribe(() -> Log.d(TAG, "Nuking complete"), Throwable::printStackTrace);
     }
 }

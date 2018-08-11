@@ -2,4 +2,12 @@
     <string name="app_name">RxCbc</string>
     <string name="download_videos">Download videos</string>
     <string name="delete_videos">Delete all videos</string>
+
+    <string name="item_guid">Guid: %1$d</string>
+    <string name="item_polopoly_id">Polopoly Id: %1$s</string>
+    <string name="item_title">Title: %1$s</string>
+    <string name="item_description">Description: %1$s</string>
+    <string name="item_duration">Duration: %1$f</string>
+    <string name="item_live">Live: %1$s</string>
+    <string name="item_published_date">Published date: %1$s</string>
 </resources>

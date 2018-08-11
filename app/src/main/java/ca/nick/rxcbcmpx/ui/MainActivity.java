@@ -4,7 +4,6 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,11 +19,11 @@ import dagger.android.support.DaggerAppCompatActivity;
 
 public class MainActivity extends DaggerAppCompatActivity {
 
-    private static final String TAG = "cbc";
-
     @Inject
     ViewModelProvider.Factory viewModelFactory;
-    private MainViewModel viewModel;
+    @Inject
+    VideoAdapter adapter;
+    private VideoViewModel viewModel;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
 
@@ -33,10 +32,12 @@ public class MainActivity extends DaggerAppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerView = findViewById(R.id.recyclerView);
+        getLifecycle().addObserver(adapter);
         progressBar = findViewById(R.id.progressBar);
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setAdapter(adapter);
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel.class);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(VideoViewModel.class);
         viewModel.getLocalVideoItems().observe(this, this::renderVideoItems);
     }
 
@@ -44,11 +45,10 @@ public class MainActivity extends DaggerAppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
 
         if (videoItems == null) {
-            // TODO: Submitlist empty?
             return;
         }
 
-        Log.d(TAG, videoItems.size() + "");
+        adapter.submitList(videoItems);
     }
 
     private void loadVideos() {

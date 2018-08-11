@@ -10,7 +10,6 @@ import java.lang.annotation.Target;
 
 import dagger.MapKey;
 
-@Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @MapKey

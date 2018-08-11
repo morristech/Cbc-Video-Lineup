@@ -3,7 +3,7 @@ package ca.nick.rxcbcmpx.di;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 
-import ca.nick.rxcbcmpx.ui.MainViewModel;
+import ca.nick.rxcbcmpx.ui.VideoViewModel;
 import ca.nick.rxcbcmpx.utils.CbcViewModelFactory;
 import dagger.Binds;
 import dagger.Module;
@@ -14,9 +14,9 @@ public abstract class ViewModelsModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(MainViewModel.class)
-    public abstract ViewModel bindMainViewModel(MainViewModel mainViewModel);
+    @ViewModelKey(VideoViewModel.class)
+    public abstract ViewModel videoViewModel(VideoViewModel videoViewModel);
 
     @Binds
-    public abstract ViewModelProvider.Factory bindViewModelFactory(CbcViewModelFactory factory);
+    public abstract ViewModelProvider.Factory viewModelFactory(CbcViewModelFactory factory);
 }

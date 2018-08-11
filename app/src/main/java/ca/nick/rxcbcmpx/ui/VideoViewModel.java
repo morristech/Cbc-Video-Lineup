@@ -12,14 +12,14 @@ import ca.nick.rxcbcmpx.data.VideoRepository;
 import ca.nick.rxcbcmpx.models.VideoItem;
 import io.reactivex.disposables.CompositeDisposable;
 
-public class MainViewModel extends ViewModel {
+public class VideoViewModel extends ViewModel {
 
     private MediatorLiveData<List<VideoItem>> localVideoItems = new MediatorLiveData<>();
     private final VideoRepository videoRepository;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Inject
-    public MainViewModel(VideoRepository videoRepository) {
+    public VideoViewModel(VideoRepository videoRepository) {
         this.videoRepository = videoRepository;
         localVideoItems.addSource(videoRepository.getLocalVideoItems(), localVideoItems::setValue);
     }

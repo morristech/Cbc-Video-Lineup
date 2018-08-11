@@ -9,6 +9,7 @@ import java.util.List;
 public class TpFeedItem {
 
     private final List<Entry> entries;
+    private PolopolyItem polopolyItem;
 
     public TpFeedItem(List<Entry> entries) {
         this.entries = entries;
@@ -19,18 +20,38 @@ public class TpFeedItem {
     }
 
     public String getSmilUrlId() {
-        String url = entries.get(0)
-                .mediaContents.get(0)
-                .url;
+        return Uri.parse(findMediaContent().url)
+                .getLastPathSegment();
+    }
 
-        Uri uri = Uri.parse(url);
-        return uri.getLastPathSegment();
+    public double getDuration() {
+        return findMediaContent().duration;
+    }
+
+    public String getLive() {
+        return entries.get(0)
+                .liveOnDemand;
+    }
+
+    private Entry.MediaContent findMediaContent() {
+        return entries.get(0)
+                .mediaContents.get(0);
+    }
+
+    public TpFeedItem setPolopolyItem(PolopolyItem polopolyItem) {
+        this.polopolyItem = polopolyItem;
+        return this;
+    }
+
+    public PolopolyItem getPolopolyItem() {
+        return polopolyItem;
     }
 
     @Override
     public String toString() {
         return "TpFeedItem{" +
                 "entries=" + entries +
+                ", polopolyItem=" + polopolyItem +
                 '}';
     }
 

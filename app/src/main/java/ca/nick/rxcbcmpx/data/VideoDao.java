@@ -13,7 +13,7 @@ import ca.nick.rxcbcmpx.models.VideoItem;
 @Dao
 public abstract class VideoDao {
 
-    @Query("SELECT * FROM " + VideoItem.TABLE_NAME)
+    @Query("SELECT * FROM " + VideoItem.TABLE_NAME + " ORDER BY insertionTimestamp")
     public abstract LiveData<List<VideoItem>> videoItems();
 
     @Query("DELETE FROM " + VideoItem.TABLE_NAME)

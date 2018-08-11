@@ -7,10 +7,10 @@ import android.content.Context;
 
 import ca.nick.rxcbcmpx.models.VideoItem;
 
-@Database(entities = { VideoItem.class }, version = 1)
+@Database(entities = {VideoItem.class}, version = 1)
 public abstract class CbcDatabase extends RoomDatabase {
 
-    private static final String NAME = "cbcDatabase.db";
+    private static final String NAME = "cbc.db";
     private static volatile CbcDatabase sInstance;
 
     public abstract VideoDao videoDao();
@@ -31,5 +31,4 @@ public abstract class CbcDatabase extends RoomDatabase {
         return Room.databaseBuilder(context.getApplicationContext(), CbcDatabase.class, NAME)
                 .build();
     }
-
 }
