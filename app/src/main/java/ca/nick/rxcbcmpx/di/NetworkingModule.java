@@ -46,6 +46,7 @@ public class NetworkingModule {
     @Provides
     public ThePlatformService thePlatformService() {
         Retrofit.Builder builder = new Retrofit.Builder()
+                // TODO: Replace with https://github.com/Tickaroo/tikxml
                 .addConverterFactory(SimpleXmlConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create());
 

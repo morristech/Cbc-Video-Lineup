@@ -2,7 +2,6 @@ package ca.nick.rxcbcmpx.data;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
-import android.util.Log;
 
 import java.util.List;
 
@@ -13,15 +12,12 @@ import ca.nick.rxcbcmpx.networking.AggregateApiService;
 import ca.nick.rxcbcmpx.networking.ThePlatformService;
 import ca.nick.rxcbcmpx.networking.TpFeedService;
 import ca.nick.rxcbcmpx.networking.PolopolyService;
-import ca.nick.rxcbcmpx.utils.RxExtensions;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.disposables.Disposable;
 
 public class VideoRepository {
 
-    private static final String TAG = "cbc";
-    private static final int NUM_RETRY_ATTEMPTS = 3;
+    private static final int NUM_RETRY_ATTEMPTS = 3;  // Arbitrary
 
     private final CbcDatabase cbcDatabase;
     private MediatorLiveData<List<VideoItem>> localVideoItems = new MediatorLiveData<>();
@@ -49,13 +45,9 @@ public class VideoRepository {
         return localVideoItems;
     }
 
-    public Disposable fetchAndPersistVideos() {
-        return nukeDatabase()
-                .andThen(fetchVideoContent())
-                .flatMapCompletable(this::insertLocally)
-                .compose(RxExtensions.applySchedulers())
-                .subscribe(() -> Log.d(TAG, "Completed fetching and persisting remote videos"),
-                        Throwable::printStackTrace);
+    public Completable fetchThenPersistVideos() {
+        return fetchVideoContent()
+                .flatMapCompletable(this::insertLocally);
     }
 
     public Flowable<VideoItem> fetchVideoContent() {
@@ -76,17 +68,11 @@ public class VideoRepository {
                 .map(VideoItem::fromRemoteData);
     }
 
-    private Completable nukeDatabase() {
+    public Completable nukeDatabase() {
         return Completable.fromAction(cbcDatabase.videoDao()::nuke);
     }
 
-    private Completable insertLocally(VideoItem videoItem) {
+    public Completable insertLocally(VideoItem videoItem) {
         return Completable.fromAction(() -> cbcDatabase.videoDao().insertVideoItem(videoItem));
-    }
-
-    public Disposable launchNuke() {
-        return nukeDatabase()
-                .compose(RxExtensions.applySchedulers())
-                .subscribe(() -> Log.d(TAG, "Nuking complete"), Throwable::printStackTrace);
     }
 }

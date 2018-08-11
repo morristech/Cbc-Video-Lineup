@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public abstract class VideoDao {
     @Query("DELETE FROM " + VideoItem.TABLE_NAME)
     public abstract void nuke();
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void insertVideoItem(VideoItem videoItem);
 
     @Delete

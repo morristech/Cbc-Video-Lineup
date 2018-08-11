@@ -1,6 +1,6 @@
 package ca.nick.rxcbcmpx.ui;
 
-import android.content.res.Resources;
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
@@ -26,6 +26,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
     public VideoViewHolder(View itemView, ExoPlayer exoPlayer) {
         super(itemView);
         this.exoPlayer = exoPlayer;
+        
         guid = itemView.findViewById(R.id.guid);
         polopolyId = itemView.findViewById(R.id.polopolyId);
         title = itemView.findViewById(R.id.title);
@@ -34,17 +35,18 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
         live = itemView.findViewById(R.id.live);
         publishedDate = itemView.findViewById(R.id.publishedDate);
         player = itemView.findViewById(R.id.player);
+
         player.setPlayer(exoPlayer);
     }
 
-    public void bind(VideoItem videoItem, Resources resources) {
-        guid.setText(resources.getString(R.string.item_guid, videoItem.getGuid()));
-        polopolyId.setText(resources.getString(R.string.item_polopoly_id, videoItem.getPolopolyId()));
-        title.setText(resources.getString(R.string.item_title, videoItem.getTitle()));
-        description.setText(resources.getString(R.string.item_description, videoItem.getDescription()));
-        duration.setText(resources.getString(R.string.item_duration, videoItem.getDuration()));
-        live.setText(resources.getString(R.string.item_live, videoItem.getLive()));
-        publishedDate.setText(resources.getString(R.string.item_published_date, videoItem.getPublishedDate()));
+    public void bind(VideoItem videoItem, Context context) {
+        guid.setText(context.getString(R.string.item_guid, videoItem.getGuid()));
+        polopolyId.setText(context.getString(R.string.item_polopoly_id, videoItem.getPolopolyId()));
+        title.setText(context.getString(R.string.item_title, videoItem.getTitle()));
+        description.setText(context.getString(R.string.item_description, videoItem.getDescription()));
+        duration.setText(context.getString(R.string.item_duration, videoItem.getDuration()));
+        live.setText(context.getString(R.string.item_live, videoItem.getLive()));
+        publishedDate.setText(context.getString(R.string.item_published_date, videoItem.getPublishedDate()));
 
 //        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(
 //                itemView.getContext(),

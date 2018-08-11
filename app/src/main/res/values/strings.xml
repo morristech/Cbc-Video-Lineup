@@ -10,4 +10,5 @@
     <string name="item_duration">Duration: %1$f</string>
     <string name="item_live">Live: %1$s</string>
     <string name="item_published_date">Published date: %1$s</string>
+    <string name="error_message">An error fetching remote content occurred</string>
 </resources>

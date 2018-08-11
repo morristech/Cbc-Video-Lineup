@@ -4,7 +4,6 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.view.LayoutInflater;
@@ -20,12 +19,12 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoViewHolder>
         implements LifecycleObserver {
 
     private ExoPlayer exoPlayer;
-    private Resources resources;
+    private Context context;
 
-    public VideoAdapter(ExoPlayer exoPlayer, Resources resources) {
+    public VideoAdapter(ExoPlayer exoPlayer, Context context) {
         super(VideoDiffCallback.getInstance());
         this.exoPlayer = exoPlayer;
-        this.resources = resources;
+        this.context = context;
     }
 
     @NonNull
@@ -38,7 +37,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoViewHolder>
 
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
-        holder.bind(getItem(position), resources);
+        holder.bind(getItem(position), context);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)

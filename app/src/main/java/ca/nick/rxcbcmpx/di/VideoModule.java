@@ -46,6 +46,6 @@ public class VideoModule {
     @ActivityScope
     @Provides
     public VideoAdapter videoAdapter(ExoPlayer exoPlayer, MainActivity mainActivity) {
-        return new VideoAdapter(exoPlayer, mainActivity.getResources());
+        return new VideoAdapter(exoPlayer, mainActivity);
     }
 }
