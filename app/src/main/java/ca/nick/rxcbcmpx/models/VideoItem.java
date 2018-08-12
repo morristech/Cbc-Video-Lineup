@@ -2,6 +2,7 @@ package ca.nick.rxcbcmpx.models;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.Nullable;
 
 import java.util.Objects;
 
@@ -22,6 +23,8 @@ public class VideoItem {
     private final String publishedDate;
     private final String live;
     private final String thumbnailUrl;
+    @Nullable
+    private final String captions;
     private final long insertionTimestamp;
 
     public VideoItem(long guid,
@@ -33,6 +36,7 @@ public class VideoItem {
                      String publishedDate,
                      String live,
                      String thumbnailUrl,
+                     @Nullable String captions,
                      long insertionTimestamp) {
         this.guid = guid;
         this.polopolyId = polopolyId;
@@ -43,6 +47,7 @@ public class VideoItem {
         this.publishedDate = publishedDate;
         this.live = live;
         this.thumbnailUrl = thumbnailUrl;
+        this.captions = captions;
         this.insertionTimestamp = insertionTimestamp;
     }
 
@@ -61,6 +66,7 @@ public class VideoItem {
                 polopolyItem.getPubdate(),
                 tpFeedItem.getLive(),
                 polopolyItem.getImageUrl(),
+                thePlatformItem.getCaptions(),
                 System.currentTimeMillis());
     }
 
@@ -98,6 +104,11 @@ public class VideoItem {
 
     public String getLive() {
         return live;
+    }
+
+    @Nullable
+    public String getCaptions() {
+        return captions;
     }
 
     public long getInsertionTimestamp() {

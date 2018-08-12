@@ -64,8 +64,8 @@ public class VideoRepository {
                         .doOnNext(tpFeedItem -> tpFeedItem.setPolopolyItem(polopolyItem)))
                 .flatMap(tpFeedItem -> thePlatformService.thePlatformItems(tpFeedItem.getSmilUrlId())
                         .doOnNext(thePlatformItem -> thePlatformItem.setTpFeedItem(tpFeedItem))
-                        // Discard 404 errors
                         .doOnError(Throwable::printStackTrace)
+                        // Discard 404 errors
                         .onErrorResumeNext(Flowable.empty()))
                 .map(VideoItem::fromRemoteData);
     }

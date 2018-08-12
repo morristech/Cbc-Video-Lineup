@@ -1,5 +1,7 @@
 package ca.nick.rxcbcmpx.models;
 
+import android.support.annotation.Nullable;
+
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
@@ -39,6 +41,23 @@ public class ThePlatformItem {
 
     public String getUrl() {
         return findVideo().src;
+    }
+
+    @Nullable
+    public String getCaptions() {
+        Body.Seq.Par par = body.seq.pars != null
+                ? body.seq.pars.get(0)
+                : null;
+
+        if (par != null && par.textStreams != null) {
+            for (Body.Seq.Par.TextStream textStream : par.textStreams) {
+                if (textStream.src != null) {
+                    return textStream.src;
+                }
+            }
+        }
+
+        return null;
     }
 
     private Body.Seq.Video findVideo() {
