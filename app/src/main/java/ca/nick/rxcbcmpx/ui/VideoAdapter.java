@@ -40,9 +40,10 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     private final Context activityContext;
     private final LifecycleOwner lifecycleOwner;
     private LinearLayoutManager layoutManager;
+
     private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
 
-        private int currentlyPlayingPosition;
+        private int currentlyPlayingPosition = -1;
 
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -54,6 +55,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             int first = layoutManager.findFirstVisibleItemPosition();
             int last = layoutManager.findLastVisibleItemPosition();
 
+            // FIXME: Last visible item never gets to play
             int middleView = (first + last) / 2;
             if (currentlyPlayingPosition != middleView) {
                 // These VHs can be null after deleting all the adapter's items
