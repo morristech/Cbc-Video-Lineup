@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,8 @@ import dagger.android.support.DaggerAppCompatActivity;
 
 // TODO: Swipe to delete + coordinator layout paraxis thing up top; CBC newsroom image
 // lottie loading screen
+// TODO: Full screen: https://geoffledak.com/blog/2017/09/11/how-to-add-a-fullscreen-toggle-button-to-exoplayer-in-android/
+// TODO: Remove all controls except mute?
 public class MainActivity extends DaggerAppCompatActivity {
 
     @Inject
@@ -38,6 +41,8 @@ public class MainActivity extends DaggerAppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         progressBar = findViewById(R.id.progressBar);
         errorMessage = findViewById(R.id.errorMessage);
