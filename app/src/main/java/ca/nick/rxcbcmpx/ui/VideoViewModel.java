@@ -38,7 +38,7 @@ public class VideoViewModel extends ViewModel {
     }
 
     public void loadVideos() {
-        Disposable disposable = videoRepository.fetchThenPersistVideos()
+        Disposable disposable = videoRepository.nukeThenfetchThenPersistVideos()
                 .compose(RxExtensions.applySchedulers())
                 .startWith(startLoading())
                 .subscribe(() -> Log.d(TAG, "Completed fetching and persisting remote videos"),

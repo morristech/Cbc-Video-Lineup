@@ -43,6 +43,7 @@ public class MainActivity extends DaggerAppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         progressBar = findViewById(R.id.progressBar);
         errorMessage = findViewById(R.id.errorMessage);

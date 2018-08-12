@@ -127,7 +127,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     }
 
     public class VideoViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener, LifecycleObserver{
+            implements LifecycleObserver {
 
         private ExoPlayer exoPlayer;
         private TextView title;
@@ -147,7 +147,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             previewGroup = itemView.findViewById(R.id.preview_group);
             progressBar = itemView.findViewById(R.id.preview_progress_bar);
             setPreviewingUiState();
-            itemView.setOnClickListener(this);
         }
 
         public void bind(VideoItem videoItem, Context context) {
@@ -169,14 +168,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             previewGroup.setVisibility(View.VISIBLE);
             playerView.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.INVISIBLE);
-        }
-
-        @Override
-        public void onClick(View v) {
-            if (isLoading()) {
-                return;
-            }
-            startPlaying();
         }
 
         private boolean isLoading() {
