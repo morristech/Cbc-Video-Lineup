@@ -45,7 +45,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
 
     private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
 
-        public static final String TAG = "rv";
         private int currentlyPlayingPosition = -1;
 
         @Override
@@ -116,7 +115,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     public void onViewDetachedFromWindow(@NonNull VideoViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
         lifecycleOwner.getLifecycle().removeObserver(holder);
-        holder.stopPlaying();
     }
 
     @Override
@@ -209,6 +207,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             previewImage = itemView.findViewById(R.id.preview_image);
             previewGroup = itemView.findViewById(R.id.preview_group);
             progressBar = itemView.findViewById(R.id.preview_progress_bar);
+            // Views are reused in RecyclerView, so reset their state
             stopPlaying();
         }
 
@@ -250,6 +249,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
 
         private void stopPlaying() {
             setPreviewingUiState();
+
             if (componentListener != null) {
                 exoPlayer.removeListener(componentListener);
             }
