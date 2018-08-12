@@ -55,6 +55,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             int first = layoutManager.findFirstCompletelyVisibleItemPosition();
             int last = layoutManager.findFirstCompletelyVisibleItemPosition();
 
+            // FIXME: Last item in adapter is never autoplaying
             int middleView = (first + last) / 2;
             if (currentlyPlayingPosition != middleView) {
                 // These VHs can be null after deleting all the adapter's items
