@@ -35,7 +35,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     private final Provider<ExoPlayer> exoPlayerProvider;
     private final HlsMediaSource.Factory factory;
     private final Context activityContext;
-    private ExoPlayer exoPlayer;
 
     public VideoAdapter(Provider<ExoPlayer> exoPlayerProvider,
                         HlsMediaSource.Factory factory,
@@ -44,7 +43,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         this.exoPlayerProvider = exoPlayerProvider;
         this.factory = factory;
         this.activityContext = activityContext;
-        initializePlayer();
     }
 
     @NonNull
@@ -63,54 +61,44 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void start() {
         if (Util.SDK_INT > 23) {
-            initializePlayer();
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     public void resume() {
-        if (Util.SDK_INT <= 23 || exoPlayer == null) {
-            initializePlayer();
+        if (Util.SDK_INT <= 23) {
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     public void pause() {
         if (Util.SDK_INT <= 23) {
-            releasePlayer();
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void stop() {
         if (Util.SDK_INT > 23) {
-            releasePlayer();
         }
     }
 
-    private void initializePlayer() {
-        exoPlayer = exoPlayerProvider.get();
-    }
-
-    private void releasePlayer() {
-        if (exoPlayer == null) {
-            return;
-        }
-
-        exoPlayer.release();
-        exoPlayer = null;
-    }
 
     @Override
     public void onViewDetachedFromWindow(@NonNull VideoViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
-        holder.setPreviewing();
-        exoPlayer.removeListener(holder.getComponentListener());
+        holder.releasePlayer();
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull VideoViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        holder.setPlayer(exoPlayerProvider.get());
     }
 
     public class VideoViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
 
+        private ExoPlayer exoPlayer;
         private TextView title;
         private PlayerView player;
         private ImageView previewImage;
@@ -119,14 +107,9 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         private VideoItem videoItem;
         private ComponentListener componentListener;
 
-        public ComponentListener getComponentListener() {
-            return componentListener;
-        }
-
         public VideoViewHolder(View itemView) {
             super(itemView);
 
-            componentListener = new ComponentListener();
             title = itemView.findViewById(R.id.title);
             player = itemView.findViewById(R.id.player);
             previewImage = itemView.findViewById(R.id.preview_image);
@@ -144,12 +127,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
                     .into(previewImage);
         }
 
-        private void setPreviewing() {
-            previewGroup.setVisibility(View.VISIBLE);
-            player.setVisibility(View.INVISIBLE);
-            player.setPlayer(null);
-        }
-
         private void setPlaying() {
             previewGroup.setVisibility(View.INVISIBLE);
             player.setVisibility(View.VISIBLE);
@@ -158,12 +135,43 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
 
         @Override
         public void onClick(View v) {
+            startPlaying();
+        }
+
+        public void startPlaying() {
+            componentListener = new ComponentListener();
             exoPlayer.addListener(componentListener);
             player.setPlayer(exoPlayer);
             progressBar.setVisibility(View.VISIBLE);
             MediaSource mediaSource = factory.createMediaSource(Uri.parse(videoItem.getSrc()));
             exoPlayer.prepare(mediaSource);
             exoPlayer.setPlayWhenReady(true);
+        }
+
+        public void setPlayer(ExoPlayer exoPlayer) {
+            if (hasExoPlayer()) {
+                throw new RuntimeException("Trying to set ExoPlayer member var when it's already set");
+            }
+            this.exoPlayer = exoPlayer;
+        }
+
+        public void releasePlayer() {
+            if (!hasExoPlayer()) {
+                return;
+            }
+
+            exoPlayer.removeListener(componentListener);
+            componentListener = null;
+            exoPlayer.release();
+            exoPlayer = null;
+
+            previewGroup.setVisibility(View.VISIBLE);
+            player.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+
+        public boolean hasExoPlayer() {
+            return exoPlayer != null;
         }
 
         private class ComponentListener extends Player.DefaultEventListener {
