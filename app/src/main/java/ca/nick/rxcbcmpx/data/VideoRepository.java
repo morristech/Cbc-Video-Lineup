@@ -2,6 +2,7 @@ package ca.nick.rxcbcmpx.data;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
+import android.util.Log;
 
 import java.util.List;
 
@@ -64,6 +65,7 @@ public class VideoRepository {
                 .flatMap(tpFeedItem -> thePlatformService.thePlatformItems(tpFeedItem.getSmilUrlId())
                         .doOnNext(thePlatformItem -> thePlatformItem.setTpFeedItem(tpFeedItem))
                         // Discard 404 errors
+                        .doOnError(Throwable::printStackTrace)
                         .onErrorResumeNext(Flowable.empty()))
                 .map(VideoItem::fromRemoteData);
     }

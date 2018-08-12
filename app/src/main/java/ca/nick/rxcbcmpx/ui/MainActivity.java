@@ -21,6 +21,8 @@ import ca.nick.rxcbcmpx.utils.Resource;
 import ca.nick.rxcbcmpx.utils.Status;
 import dagger.android.support.DaggerAppCompatActivity;
 
+// TODO: Swipe to delete + coordinator layout paraxis thing up top; CBC newsroom image
+// lottie loading screen
 public class MainActivity extends DaggerAppCompatActivity {
 
     @Inject

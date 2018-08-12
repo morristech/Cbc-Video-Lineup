@@ -7,7 +7,6 @@ import dagger.android.ContributesAndroidInjector;
 @Module
 public abstract class MainActivityModule {
 
-    @ActivityScope
     @ContributesAndroidInjector(modules = VideoModule.class)
     abstract MainActivity mainActivityInjector();
 }

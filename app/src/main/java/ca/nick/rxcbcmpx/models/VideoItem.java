@@ -110,11 +110,16 @@ public class VideoItem {
         if (object == null || getClass() != object.getClass()) return false;
         VideoItem videoItem = (VideoItem) object;
         return guid == videoItem.guid &&
-                Objects.equals(src, videoItem.src);
+                Objects.equals(polopolyId, videoItem.polopolyId) &&
+                Objects.equals(src, videoItem.src) &&
+                Objects.equals(title, videoItem.title) &&
+                Objects.equals(description, videoItem.description) &&
+                Objects.equals(publishedDate, videoItem.publishedDate) &&
+                Objects.equals(live, videoItem.live);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(guid, src);
+        return Objects.hash(guid, polopolyId, src, title, description, publishedDate, live);
     }
 }
