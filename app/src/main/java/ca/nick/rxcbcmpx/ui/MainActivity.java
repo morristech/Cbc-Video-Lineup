@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,8 +23,6 @@ import ca.nick.rxcbcmpx.utils.Resource;
 import ca.nick.rxcbcmpx.utils.Status;
 import dagger.android.support.DaggerAppCompatActivity;
 
-// TODO: Swipe to delete + coordinator layout paraxis thing up top; CBC newsroom image
-// lottie loading screen
 // TODO: Full screen: https://geoffledak.com/blog/2017/09/11/how-to-add-a-fullscreen-toggle-button-to-exoplayer-in-android/
 // TODO: Remove all controls except mute?
 public class MainActivity extends DaggerAppCompatActivity {
@@ -119,4 +118,21 @@ public class MainActivity extends DaggerAppCompatActivity {
             default: return super.onOptionsItemSelected(item);
         }
     }
+
+    // TODO
+    private ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+            ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            VideoItem videoItem = ((VideoAdapter.VideoViewHolder) viewHolder).getVideoItem();
+            viewModel.delete(videoItem);
+        }
+    });
 }

@@ -68,4 +68,14 @@ public class VideoViewModel extends ViewModel {
         super.onCleared();
         compositeDisposable.dispose();
     }
+
+    public void delete(VideoItem videoItem) {
+        Disposable disposable = videoRepository.deleteLocally(videoItem)
+                .compose(RxExtensions.applySchedulers())
+                .startWith(startLoading())
+                .subscribe(() -> Log.d(TAG, "Removed video item : " + videoItem.getGuid()),
+                        error -> localVideoItems.setValue(Resource.error(error)));
+
+        compositeDisposable.add(disposable);
+    }
 }

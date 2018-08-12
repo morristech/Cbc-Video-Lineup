@@ -43,6 +43,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
 
     private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
 
+        public static final String TAG = "rv";
         private int currentlyPlayingPosition = -1;
 
         @Override
@@ -55,10 +56,19 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             int first = layoutManager.findFirstCompletelyVisibleItemPosition();
             int last = layoutManager.findLastCompletelyVisibleItemPosition();
 
-            // FIXME: Last item in adapter is never autoplaying
-            // FIXME: Landscape won't play with this logic
-            int middleView = (first + last) / 2;
-            if (currentlyPlayingPosition != middleView) {
+            Log.d(TAG, "first = " + first + ", last = " + last);
+
+            int viewPositionToPlay;
+            if (first == -1 && last == -1) {
+                // This can happen in landscape when the VH is taller than the screen height
+                viewPositionToPlay = layoutManager.findFirstVisibleItemPosition();
+            } else if (last == getItemCount() - 1) {
+                viewPositionToPlay = last;
+            } else {
+                viewPositionToPlay = (first + last) / 2;
+            }
+
+            if (currentlyPlayingPosition != viewPositionToPlay) {
                 // These VHs can be null after deleting all the adapter's items
                 VideoViewHolder currentViewHolder =
                         (VideoViewHolder) recyclerView.findViewHolderForLayoutPosition(currentlyPlayingPosition);
@@ -67,11 +77,11 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
                 }
 
                 VideoViewHolder nextViewHolder =
-                        (VideoViewHolder) recyclerView.findViewHolderForLayoutPosition(middleView);
+                        (VideoViewHolder) recyclerView.findViewHolderForLayoutPosition(viewPositionToPlay);
                 if (nextViewHolder != null) {
                     nextViewHolder.startPlaying();
                 }
-                currentlyPlayingPosition = middleView;
+                currentlyPlayingPosition = viewPositionToPlay;
             }
         }
     };
@@ -138,6 +148,10 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         private Group previewGroup;
         private VideoItem videoItem;
         private ComponentListener componentListener;
+
+        public VideoItem getVideoItem() {
+            return videoItem;
+        }
 
         public VideoViewHolder(View itemView) {
             super(itemView);
