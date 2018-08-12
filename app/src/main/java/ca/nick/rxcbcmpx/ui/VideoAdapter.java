@@ -33,13 +33,15 @@ import ca.nick.rxcbcmpx.R;
 import ca.nick.rxcbcmpx.models.VideoItem;
 import ca.nick.rxcbcmpx.utils.GlideApp;
 
-public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewHolder> {
+public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewHolder>
+        implements LifecycleObserver {
 
     private final Provider<ExoPlayer> exoPlayerProvider;
     private final HlsMediaSource.Factory factory;
     private final Context activityContext;
     private final LifecycleOwner lifecycleOwner;
     private LinearLayoutManager layoutManager;
+    private ExoPlayer exoPlayer;
 
     private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
 
@@ -73,7 +75,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
                 VideoViewHolder currentViewHolder =
                         (VideoViewHolder) recyclerView.findViewHolderForLayoutPosition(currentlyPlayingPosition);
                 if (currentViewHolder != null) {
-                    currentViewHolder.releasePlayer();
+                    currentViewHolder.stopPlaying();
                 }
 
                 VideoViewHolder nextViewHolder =
@@ -114,7 +116,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     public void onViewDetachedFromWindow(@NonNull VideoViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
         lifecycleOwner.getLifecycle().removeObserver(holder);
-        holder.releasePlayer();
+        holder.stopPlaying();
     }
 
     @Override
@@ -128,6 +130,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         super.onAttachedToRecyclerView(recyclerView);
         recyclerView.addOnScrollListener(onScrollListener);
         layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        lifecycleOwner.getLifecycle().addObserver(this);
     }
 
     @Override
@@ -135,12 +138,57 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         super.onDetachedFromRecyclerView(recyclerView);
         recyclerView.removeOnScrollListener(onScrollListener);
         layoutManager = null;
+        lifecycleOwner.getLifecycle().removeObserver(this);
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    public void start() {
+        if (Util.SDK_INT > 23) {
+            initializePlayer();
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    public void resume() {
+        if (Util.SDK_INT <= 23 || exoPlayer == null) {
+            initializePlayer();
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    public void pause() {
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    public void stop() {
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
+    }
+
+    private void releasePlayer() {
+        if (exoPlayer == null) {
+            return;
+        }
+
+        exoPlayer.release();
+        exoPlayer = null;
+    }
+
+    private void initializePlayer() {
+        if (exoPlayer != null) {
+            return;
+        }
+
+        exoPlayer = exoPlayerProvider.get();
     }
 
     public class VideoViewHolder extends RecyclerView.ViewHolder
             implements LifecycleObserver {
 
-        private ExoPlayer exoPlayer;
         private TextView title;
         private PlayerView playerView;
         private ImageView previewImage;
@@ -161,7 +209,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             previewImage = itemView.findViewById(R.id.preview_image);
             previewGroup = itemView.findViewById(R.id.preview_group);
             progressBar = itemView.findViewById(R.id.preview_progress_bar);
-            setPreviewingUiState();
+            stopPlaying();
         }
 
         public void bind(VideoItem videoItem, Context context) {
@@ -190,7 +238,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         }
 
         public void startPlaying() {
-            initPlayer();
             progressBar.setVisibility(View.VISIBLE);
 
             componentListener = new ComponentListener();
@@ -201,41 +248,25 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             exoPlayer.prepare(mediaSource);
         }
 
-        public void initPlayer() {
-            if (hasExoPlayer()) {
-                return;
+        private void stopPlaying() {
+            if (componentListener != null) {
+                exoPlayer.removeListener(componentListener);
             }
-            this.exoPlayer = exoPlayerProvider.get();
-        }
-
-        public void releasePlayer() {
-            if (!hasExoPlayer()) {
-                return;
-            }
-
-            exoPlayer.removeListener(componentListener);
-            componentListener = null;
-            exoPlayer.release();
-            exoPlayer = null;
-
+            playerView.setPlayer(null);
             setPreviewingUiState();
-        }
-
-        public boolean hasExoPlayer() {
-            return exoPlayer != null;
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         public void pause() {
             if (Util.SDK_INT <= 23) {
-                releasePlayer();
+                stopPlaying();
             }
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
         public void stop() {
             if (Util.SDK_INT > 23) {
-                releasePlayer();
+                stopPlaying();
             }
         }
 

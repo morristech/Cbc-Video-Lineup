@@ -37,6 +37,7 @@
             android:layout_marginTop="16dp"
             android:visibility="invisible"
             app:show_timeout="2000"
+            app:use_controller="false"
             app:controller_layout_id="@layout/custom_playback_control"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="H,16:9"
