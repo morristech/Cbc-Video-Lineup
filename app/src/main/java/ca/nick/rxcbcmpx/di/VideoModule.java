@@ -17,8 +17,6 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
-import javax.inject.Provider;
-
 import ca.nick.rxcbcmpx.ui.MainActivity;
 import ca.nick.rxcbcmpx.ui.VideoAdapter;
 import dagger.Module;
@@ -65,12 +63,5 @@ public class VideoModule {
     @Provides
     public HlsMediaSource.Factory hlsMediaSourceFactory(HlsDataSourceFactory hlsDataSourceFactory) {
         return new HlsMediaSource.Factory(hlsDataSourceFactory);
-    }
-
-    @Provides
-    public VideoAdapter videoAdapter(Provider<ExoPlayer> exoPlayerProvider,
-                                     HlsMediaSource.Factory factory,
-                                     MainActivity mainActivity) {
-        return new VideoAdapter(exoPlayerProvider, factory, mainActivity);
     }
 }

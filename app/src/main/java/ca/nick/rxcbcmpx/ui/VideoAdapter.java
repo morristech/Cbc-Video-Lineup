@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.constraint.Group;
 import android.support.v7.recyclerview.extensions.ListAdapter;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.Util;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
 
 import ca.nick.rxcbcmpx.R;
@@ -37,7 +39,41 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     private final HlsMediaSource.Factory factory;
     private final Context activityContext;
     private final LifecycleOwner lifecycleOwner;
+    private LinearLayoutManager layoutManager;
+    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
 
+        private int currentlyPlayingPosition;
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            if (layoutManager == null) {
+                return;
+            }
+
+            int first = layoutManager.findFirstVisibleItemPosition();
+            int last = layoutManager.findLastVisibleItemPosition();
+
+            int middleView = (first + last) / 2;
+            if (currentlyPlayingPosition != middleView) {
+                // These VHs can be null after deleting all the adapter's items
+                VideoViewHolder currentViewHolder =
+                        (VideoViewHolder) recyclerView.findViewHolderForLayoutPosition(currentlyPlayingPosition);
+                if (currentViewHolder != null) {
+                    currentViewHolder.releasePlayer();
+                }
+
+                VideoViewHolder nextViewHolder =
+                        (VideoViewHolder) recyclerView.findViewHolderForLayoutPosition(middleView);
+                if (nextViewHolder != null) {
+                    nextViewHolder.startPlaying();
+                }
+                currentlyPlayingPosition = middleView;
+            }
+        }
+    };
+
+    @Inject
     public VideoAdapter(Provider<ExoPlayer> exoPlayerProvider,
                         HlsMediaSource.Factory factory,
                         MainActivity mainActivity) {
@@ -72,7 +108,20 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     public void onViewAttachedToWindow(@NonNull VideoViewHolder holder) {
         super.onViewAttachedToWindow(holder);
         lifecycleOwner.getLifecycle().addObserver(holder);
-        holder.initPlayer();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        recyclerView.addOnScrollListener(onScrollListener);
+        layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        recyclerView.removeOnScrollListener(onScrollListener);
+        layoutManager = null;
     }
 
     public class VideoViewHolder extends RecyclerView.ViewHolder
@@ -133,6 +182,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         }
 
         public void startPlaying() {
+            initPlayer();
             progressBar.setVisibility(View.VISIBLE);
 
             componentListener = new ComponentListener();
@@ -165,20 +215,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
 
         public boolean hasExoPlayer() {
             return exoPlayer != null;
-        }
-
-        @OnLifecycleEvent(Lifecycle.Event.ON_START)
-        public void start() {
-            if (Util.SDK_INT > 23) {
-                initPlayer();
-            }
-        }
-
-        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        public void resume() {
-            if (Util.SDK_INT <= 23) {
-                initPlayer();
-            }
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
