@@ -26,6 +26,8 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.Util;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -36,6 +38,8 @@ import ca.nick.rxcbcmpx.utils.GlideApp;
 public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewHolder>
         implements LifecycleObserver {
 
+    private static final String TAG = "asdf";
+
     private final Provider<ExoPlayer> exoPlayerProvider;
     private final HlsMediaSource.Factory factory;
     private final Context activityContext;
@@ -43,6 +47,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     private LinearLayoutManager layoutManager;
     private ExoPlayer exoPlayer;
 
+    // TODO: Use on ScrollChangeListener instead? 2nd item keeps trying to load
     private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
 
         private int currentlyPlayingPosition = -1;
@@ -75,12 +80,14 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
                         (VideoViewHolder) recyclerView.findViewHolderForLayoutPosition(currentlyPlayingPosition);
                 if (currentViewHolder != null) {
                     currentViewHolder.stopPlaying();
+                    Log.d(TAG, "onScrolled: stopPlaying: " + currentViewHolder);
                 }
 
                 VideoViewHolder nextViewHolder =
                         (VideoViewHolder) recyclerView.findViewHolderForLayoutPosition(viewPositionToPlay);
                 if (nextViewHolder != null) {
                     nextViewHolder.startPlaying();
+                    Log.d(TAG, "\tonScrolled: startPlaying: " + nextViewHolder);
                 }
                 currentlyPlayingPosition = viewPositionToPlay;
             }
@@ -96,6 +103,14 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         this.factory = factory;
         this.activityContext = mainActivity;
         this.lifecycleOwner = mainActivity;
+    }
+
+    @Override
+    public void submitList(List<VideoItem> list) {
+        super.submitList(list);
+        if (exoPlayer != null && list.isEmpty()) {
+            exoPlayer.setPlayWhenReady(false);
+        }
     }
 
     @NonNull
@@ -115,6 +130,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     public void onViewDetachedFromWindow(@NonNull VideoViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
         lifecycleOwner.getLifecycle().removeObserver(holder);
+        holder.stopPlaying();
     }
 
     @Override
@@ -252,6 +268,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
 
             if (componentListener != null) {
                 exoPlayer.removeListener(componentListener);
+                componentListener = null;
             }
             playerView.setPlayer(null);
         }
@@ -271,9 +288,11 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             }
         }
 
-        private class ComponentListener extends Player.DefaultEventListener {
+        private RecyclerView.ViewHolder getThis() {
+            return this;
+        }
 
-            private static final String TAG = "cbc";
+        private class ComponentListener extends Player.DefaultEventListener {
 
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
@@ -286,7 +305,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
                         progressBar.setVisibility(View.VISIBLE);
                         break;
                     case Player.STATE_READY:
-                        Log.d(TAG, "ready, isLoading: " + isLoading() + ", playWhenReady: " + playWhenReady);
+                        Log.d(TAG, "ready, isLoading: " + isLoading() + ", playWhenReady: " + playWhenReady + ", for: " + getThis());
                         if (playWhenReady && isLoading()) {
                             setPlayingUiState();
                         }
