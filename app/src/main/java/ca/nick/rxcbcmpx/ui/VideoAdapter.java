@@ -58,15 +58,15 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             int first = layoutManager.findFirstCompletelyVisibleItemPosition();
             int last = layoutManager.findLastCompletelyVisibleItemPosition();
 
-            Log.d(TAG, "first = " + first + ", last = " + last);
-
             int viewPositionToPlay;
             if (first == -1 && last == -1) {
                 // This can happen in landscape when the VH is taller than the screen height
                 viewPositionToPlay = layoutManager.findFirstVisibleItemPosition();
             } else if (last == getItemCount() - 1) {
+                // Workaround to play final item in list
                 viewPositionToPlay = last;
             } else {
+                // Otherwise get the item nearest to the middle of the screen
                 viewPositionToPlay = (first + last) / 2;
             }
 
@@ -249,13 +249,14 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         }
 
         private void stopPlaying() {
+            setPreviewingUiState();
             if (componentListener != null) {
                 exoPlayer.removeListener(componentListener);
             }
             playerView.setPlayer(null);
-            setPreviewingUiState();
         }
 
+        // TODO: Add start/resume to resume video
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         public void pause() {
             if (Util.SDK_INT <= 23) {
