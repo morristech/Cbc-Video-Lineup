@@ -2,6 +2,7 @@ package ca.nick.rxcbcmpx.ui;
 
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.constraint.Group;
 import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,20 +31,21 @@ import ca.nick.rxcbcmpx.R;
 import ca.nick.rxcbcmpx.models.VideoItem;
 import ca.nick.rxcbcmpx.utils.GlideApp;
 
-public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewHolder>
-        implements LifecycleObserver {
+public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewHolder> {
 
     private final Provider<ExoPlayer> exoPlayerProvider;
     private final HlsMediaSource.Factory factory;
     private final Context activityContext;
+    private final LifecycleOwner lifecycleOwner;
 
     public VideoAdapter(Provider<ExoPlayer> exoPlayerProvider,
                         HlsMediaSource.Factory factory,
-                        Context activityContext) {
+                        MainActivity mainActivity) {
         super(VideoDiffCallback.getInstance());
         this.exoPlayerProvider = exoPlayerProvider;
         this.factory = factory;
-        this.activityContext = activityContext;
+        this.activityContext = mainActivity;
+        this.lifecycleOwner = mainActivity;
     }
 
     @NonNull
@@ -58,49 +61,26 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         holder.bind(getItem(position), activityContext);
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    public void start() {
-        if (Util.SDK_INT > 23) {
-        }
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    public void resume() {
-        if (Util.SDK_INT <= 23) {
-        }
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    public void pause() {
-        if (Util.SDK_INT <= 23) {
-        }
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void stop() {
-        if (Util.SDK_INT > 23) {
-        }
-    }
-
-
     @Override
     public void onViewDetachedFromWindow(@NonNull VideoViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
+        lifecycleOwner.getLifecycle().removeObserver(holder);
         holder.releasePlayer();
     }
 
     @Override
     public void onViewAttachedToWindow(@NonNull VideoViewHolder holder) {
         super.onViewAttachedToWindow(holder);
-        holder.setPlayer(exoPlayerProvider.get());
+        lifecycleOwner.getLifecycle().addObserver(holder);
+        holder.initPlayer();
     }
 
     public class VideoViewHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+            implements View.OnClickListener, LifecycleObserver{
 
         private ExoPlayer exoPlayer;
         private TextView title;
-        private PlayerView player;
+        private PlayerView playerView;
         private ImageView previewImage;
         private ProgressBar progressBar;
         private Group previewGroup;
@@ -111,10 +91,11 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             super(itemView);
 
             title = itemView.findViewById(R.id.title);
-            player = itemView.findViewById(R.id.player);
+            playerView = itemView.findViewById(R.id.player);
             previewImage = itemView.findViewById(R.id.preview_image);
             previewGroup = itemView.findViewById(R.id.preview_group);
             progressBar = itemView.findViewById(R.id.preview_progress_bar);
+            setPreviewingUiState();
             itemView.setOnClickListener(this);
         }
 
@@ -127,32 +108,46 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
                     .into(previewImage);
         }
 
-        private void setPlaying() {
+        private void setPlayingUiState() {
             previewGroup.setVisibility(View.INVISIBLE);
-            player.setVisibility(View.VISIBLE);
+            playerView.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+
+        private void setPreviewingUiState() {
+            previewGroup.setVisibility(View.VISIBLE);
+            playerView.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.INVISIBLE);
         }
 
         @Override
         public void onClick(View v) {
+            if (isLoading()) {
+                return;
+            }
             startPlaying();
         }
 
-        public void startPlaying() {
-            componentListener = new ComponentListener();
-            exoPlayer.addListener(componentListener);
-            player.setPlayer(exoPlayer);
-            progressBar.setVisibility(View.VISIBLE);
-            MediaSource mediaSource = factory.createMediaSource(Uri.parse(videoItem.getSrc()));
-            exoPlayer.prepare(mediaSource);
-            exoPlayer.setPlayWhenReady(true);
+        private boolean isLoading() {
+            return progressBar.getVisibility() == View.VISIBLE;
         }
 
-        public void setPlayer(ExoPlayer exoPlayer) {
+        public void startPlaying() {
+            progressBar.setVisibility(View.VISIBLE);
+
+            componentListener = new ComponentListener();
+            exoPlayer.addListener(componentListener);
+            playerView.setPlayer(exoPlayer);
+            exoPlayer.setPlayWhenReady(true);
+            MediaSource mediaSource = factory.createMediaSource(Uri.parse(videoItem.getSrc()));
+            exoPlayer.prepare(mediaSource);
+        }
+
+        public void initPlayer() {
             if (hasExoPlayer()) {
-                throw new RuntimeException("Trying to set ExoPlayer member var when it's already set");
+                return;
             }
-            this.exoPlayer = exoPlayer;
+            this.exoPlayer = exoPlayerProvider.get();
         }
 
         public void releasePlayer() {
@@ -165,33 +160,63 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             exoPlayer.release();
             exoPlayer = null;
 
-            previewGroup.setVisibility(View.VISIBLE);
-            player.setVisibility(View.INVISIBLE);
-            progressBar.setVisibility(View.INVISIBLE);
+            setPreviewingUiState();
         }
 
         public boolean hasExoPlayer() {
             return exoPlayer != null;
         }
 
+        @OnLifecycleEvent(Lifecycle.Event.ON_START)
+        public void start() {
+            if (Util.SDK_INT > 23) {
+                initPlayer();
+            }
+        }
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        public void resume() {
+            if (Util.SDK_INT <= 23) {
+                initPlayer();
+            }
+        }
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        public void pause() {
+            if (Util.SDK_INT <= 23) {
+                releasePlayer();
+            }
+        }
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+        public void stop() {
+            if (Util.SDK_INT > 23) {
+                releasePlayer();
+            }
+        }
+
         private class ComponentListener extends Player.DefaultEventListener {
 
-            private boolean hasPlayerBeenSeen;
+            private static final String TAG = "cbc";
 
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 switch (playbackState) {
                     case Player.STATE_IDLE:
+                        Log.d(TAG, "idle");
                         break;
                     case Player.STATE_BUFFERING:
+                        Log.d(TAG, "buffering");
+                        progressBar.setVisibility(View.VISIBLE);
                         break;
                     case Player.STATE_READY:
-                        if (!hasPlayerBeenSeen) {
-                            setPlaying();
-                            hasPlayerBeenSeen = true;
+                        Log.d(TAG, "ready, isLoading: " + isLoading() + ", playWhenReady: " + playWhenReady);
+                        if (playWhenReady && isLoading()) {
+                            setPlayingUiState();
                         }
                         break;
                     case Player.STATE_ENDED:
+                        Log.d(TAG, "ended");
                         break;
                     default:
                         break;

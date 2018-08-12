@@ -39,7 +39,6 @@ public class MainActivity extends DaggerAppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getLifecycle().addObserver(adapter);
         progressBar = findViewById(R.id.progressBar);
         errorMessage = findViewById(R.id.errorMessage);
         recyclerView = findViewById(R.id.recyclerView);
