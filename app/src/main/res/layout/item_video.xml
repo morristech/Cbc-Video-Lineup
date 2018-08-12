@@ -37,7 +37,6 @@
             android:layout_marginTop="16dp"
             android:visibility="invisible"
             app:show_timeout="2000"
-            app:use_controller="false"
             app:controller_layout_id="@layout/custom_playback_control"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="H,16:9"
@@ -60,7 +59,7 @@
             tools:background="@android:color/black"/>
 
         <ImageView
-            android:id="@+id/play_image"
+            android:id="@+id/preview_play_image"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginBottom="8dp"
@@ -77,8 +76,7 @@
             android:id="@+id/preview_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="visible"
-            app:constraint_referenced_ids="preview_image,play_image" />
+            app:constraint_referenced_ids="preview_image,preview_play_image" />
 
         <ProgressBar
             android:id="@+id/preview_progress_bar"
