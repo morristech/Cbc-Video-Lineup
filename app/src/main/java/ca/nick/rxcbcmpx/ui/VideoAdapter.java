@@ -1,5 +1,6 @@
 package ca.nick.rxcbcmpx.ui;
 
+import android.app.Dialog;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
@@ -8,6 +9,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.constraint.Group;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -203,7 +206,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     }
 
     public class VideoViewHolder extends RecyclerView.ViewHolder
-            implements LifecycleObserver {
+            implements LifecycleObserver, View.OnClickListener {
 
         private TextView title;
         private PlayerView playerView;
@@ -212,6 +215,11 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         private Group previewGroup;
         private VideoItem videoItem;
         private ComponentListener componentListener;
+
+        private Dialog fullScreenDialog;
+        private boolean isFullScreen;
+        private FrameLayout fullScreenButton;
+        private ImageView fullScreenIcon;
 
         public VideoItem getVideoItem() {
             return videoItem;
@@ -225,6 +233,10 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             previewImage = itemView.findViewById(R.id.preview_image);
             previewGroup = itemView.findViewById(R.id.preview_group);
             progressBar = itemView.findViewById(R.id.preview_progress_bar);
+            fullScreenButton = playerView.findViewById(R.id.exo_fullscreen_button);
+            fullScreenIcon = playerView.findViewById(R.id.exo_fullscreen_icon);
+
+            fullScreenButton.setOnClickListener(this);
         }
 
         public void bind(VideoItem videoItem, Context context) {
@@ -273,6 +285,8 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
                 exoPlayer.removeListener(componentListener);
                 componentListener = null;
             }
+            fullScreenDialog = null;
+            isFullScreen = false;
             playerView.setPlayer(null);
         }
 
@@ -291,6 +305,56 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             }
         }
 
+        @Override
+        public void onClick(View v) {
+            if (!hasPlayer()) {
+                return;
+            }
+
+            if (fullScreenDialog == null) {
+                initFullScreenDialog();
+            }
+
+            if (!isFullScreen) {
+                openFullScreenDialog();
+            } else {
+                closeFullScreenDialog();
+            }
+        }
+
+        private boolean hasPlayer() {
+            return playerView.getPlayer() != null;
+        }
+
+        private void initFullScreenDialog() {
+            fullScreenDialog = new Dialog(activityContext, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
+                @Override
+                public void onBackPressed() {
+                    if (isFullScreen) {
+                        closeFullScreenDialog();
+                    }
+                    super.onBackPressed();
+                }
+            };
+        }
+
+        private void openFullScreenDialog() {
+            ((ViewGroup) playerView.getParent()).removeView(playerView);
+            fullScreenDialog.addContentView(playerView,
+                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            isFullScreen = true;
+            fullScreenDialog.show();
+            fullScreenIcon.setImageDrawable(ContextCompat.getDrawable(activityContext, R.drawable.ic_fullscreen_exit_24dp));
+        }
+
+        private void closeFullScreenDialog() {
+            ((ViewGroup) playerView.getParent()).removeView(playerView);
+            ((FrameLayout) itemView.findViewById(R.id.player_container)).addView(playerView);
+            isFullScreen = false;
+            fullScreenDialog.dismiss();
+            fullScreenIcon.setImageDrawable(ContextCompat.getDrawable(activityContext, R.drawable.ic_fullscreen_24dp));
+        }
+
         private class ComponentListener extends Player.DefaultEventListener {
 
             @Override
@@ -300,12 +364,14 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
                         Log.d(TAG, "idle");
                         break;
                     case Player.STATE_BUFFERING:
-                        Log.d(TAG, "buffering");
-                        progressBar.setVisibility(View.VISIBLE);
+                        if (hasPlayer()) {
+                            Log.d(TAG, "buffering");
+                            progressBar.setVisibility(View.VISIBLE);
+                        }
                         break;
                     case Player.STATE_READY:
-                        Log.d(TAG, "ready, isLoading: " + isLoading() + ", playWhenReady: " + playWhenReady + ", for: " + VideoViewHolder.this);
-                        if (playWhenReady && isLoading()) {
+                        if (hasPlayer() && playWhenReady && isLoading()) {
+                        Log.d(TAG, "ready for: " + VideoViewHolder.this);
                             setPlayingUiState();
                         }
                         break;

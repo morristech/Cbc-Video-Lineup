@@ -30,20 +30,27 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="This is a sample title for a video. It's pretty cool and should be about this length" />
 
-        <com.google.android.exoplayer2.ui.PlayerView
-            android:id="@+id/player"
+        <FrameLayout
+            android:id="@+id/player_container"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="16dp"
-            android:visibility="invisible"
-            app:show_timeout="2000"
-            app:controller_layout_id="@layout/custom_playback_control"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="H,16:9"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title" />
+            app:layout_constraintTop_toBottomOf="@+id/title">
+
+            <com.google.android.exoplayer2.ui.PlayerView
+                android:id="@+id/player"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible"
+                app:show_timeout="2000"
+                app:controller_layout_id="@layout/custom_playback_control" />
+
+        </FrameLayout>
 
         <ImageView
             android:id="@+id/preview_image"
