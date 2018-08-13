@@ -42,64 +42,40 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/title">
 
+            <ImageView
+                android:id="@+id/preview_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:background="@android:color/black"
+                android:contentDescription="@null" />
+
+            <ImageView
+                android:id="@+id/preview_play_image"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                app:srcCompat="@drawable/ic_play_circle_outline_24dp"
+                android:contentDescription="@null" />
+
             <com.google.android.exoplayer2.ui.PlayerView
                 android:id="@+id/player"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="invisible"
+                tools:visibility="visible"
                 app:show_timeout="2000"
                 app:controller_layout_id="@layout/custom_playback_control" />
 
+            <ProgressBar
+                android:id="@+id/preview_progress_bar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:visibility="invisible"
+                tools:visibility="visible" />
+
         </FrameLayout>
-
-        <ImageView
-            android:id="@+id/preview_image"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="H,16:9"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title"
-            tools:background="@android:color/black"/>
-
-        <ImageView
-            android:id="@+id/preview_play_image"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/preview_image"
-            app:layout_constraintEnd_toEndOf="@+id/preview_image"
-            app:layout_constraintStart_toStartOf="@+id/preview_image"
-            app:layout_constraintTop_toTopOf="@+id/preview_image"
-            app:srcCompat="@drawable/ic_play_circle_outline_24dp" />
-
-        <android.support.constraint.Group
-            android:id="@+id/preview_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:constraint_referenced_ids="preview_image,preview_play_image" />
-
-        <ProgressBar
-            android:id="@+id/preview_progress_bar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:visibility="invisible"
-            tools:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/preview_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/preview_image" />
 
     </android.support.constraint.ConstraintLayout>
 

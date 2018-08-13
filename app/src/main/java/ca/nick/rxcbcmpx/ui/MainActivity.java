@@ -28,6 +28,7 @@ import dagger.android.support.DaggerAppCompatActivity;
 // TODO: Move UI to a retained fragment
 // TODO: Add material horizontal progressbar on bottom of screen. Use another LiveData<State> for this
 // TODO: Add snackbar for error handling with Retry button
+// TODO: Need to not start the video media source for every item scrolled thru quickly: onFling?
 public class MainActivity extends DaggerAppCompatActivity {
 
     @Inject

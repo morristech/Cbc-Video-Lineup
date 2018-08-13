@@ -8,7 +8,6 @@ import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.constraint.Group;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.widget.LinearLayoutManager;
@@ -213,7 +212,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         private PlayerView playerView;
         private ImageView previewImage;
         private ProgressBar progressBar;
-        private Group previewGroup;
         private VideoItem videoItem;
         private ComponentListener componentListener;
 
@@ -232,7 +230,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             title = itemView.findViewById(R.id.title);
             playerView = itemView.findViewById(R.id.player);
             previewImage = itemView.findViewById(R.id.preview_image);
-            previewGroup = itemView.findViewById(R.id.preview_group);
             progressBar = itemView.findViewById(R.id.preview_progress_bar);
             fullScreenButton = playerView.findViewById(R.id.exo_fullscreen_button);
             fullScreenIcon = playerView.findViewById(R.id.exo_fullscreen_icon);
@@ -253,15 +250,17 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         }
 
         private void setPlayingUiState() {
-            previewGroup.setVisibility(View.INVISIBLE);
             playerView.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.INVISIBLE);
         }
 
         private void setPreviewingUiState() {
-            previewGroup.setVisibility(View.VISIBLE);
             playerView.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.INVISIBLE);
+        }
+
+        private void setLoading() {
+            progressBar.setVisibility(View.VISIBLE);
         }
 
         private boolean isLoading() {
@@ -269,7 +268,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         }
 
         public void startPlaying() {
-            progressBar.setVisibility(View.VISIBLE);
+            setLoading();
 
             componentListener = new ComponentListener();
             exoPlayer.addListener(componentListener);
@@ -370,12 +369,12 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
                     case Player.STATE_BUFFERING:
                         if (hasPlayer()) {
                             Log.d(TAG, "buffering");
-                            progressBar.setVisibility(View.VISIBLE);
+                            setLoading();
                         }
                         break;
                     case Player.STATE_READY:
                         if (hasPlayer() && playWhenReady && isLoading()) {
-                        Log.d(TAG, "ready for: " + VideoViewHolder.this);
+                            Log.d(TAG, "ready for: " + VideoViewHolder.this);
                             setPlayingUiState();
                         }
                         break;
