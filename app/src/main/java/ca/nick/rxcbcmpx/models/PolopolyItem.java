@@ -78,11 +78,34 @@ public class PolopolyItem {
         return lineupItem;
     }
 
+    @Override
+    public String toString() {
+        return "PolopolyItem{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", show='" + show + '\'' +
+                ", flag='" + flag + '\'' +
+                ", type='" + type + '\'' +
+                ", url='" + url + '\'' +
+                ", mediaid='" + mediaid + '\'' +
+                ", pubdate='" + pubdate + '\'' +
+                ", image=" + image +
+                ", lineupItem=" + lineupItem +
+                '}';
+    }
+
     public static class Image {
         private final String url;
 
         public Image(String url) {
             this.url = url;
+        }
+
+        @Override
+        public String toString() {
+            return "Image{" +
+                    "url='" + url + '\'' +
+                    '}';
         }
     }
 }

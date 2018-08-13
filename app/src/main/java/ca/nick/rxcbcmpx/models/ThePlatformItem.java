@@ -75,6 +75,15 @@ public class ThePlatformItem {
         return tpFeedItem;
     }
 
+    @Override
+    public String toString() {
+        return "ThePlatformItem{" +
+                "head=" + head +
+                ", body=" + body +
+                ", tpFeedItem=" + tpFeedItem +
+                '}';
+    }
+
     public static class Head {
 
         @Element(required = false)
@@ -90,6 +99,13 @@ public class ThePlatformItem {
 
         public Meta getMeta() {
             return meta;
+        }
+
+        @Override
+        public String toString() {
+            return "Head{" +
+                    "meta=" + meta +
+                    '}';
         }
 
         public static class Meta {
@@ -114,6 +130,14 @@ public class ThePlatformItem {
             public String getContent() {
                 return content;
             }
+
+            @Override
+            public String toString() {
+                return "Meta{" +
+                        "name='" + name + '\'' +
+                        ", content='" + content + '\'' +
+                        '}';
+            }
         }
     }
 
@@ -131,6 +155,13 @@ public class ThePlatformItem {
 
         public Seq getSeq() {
             return seq;
+        }
+
+        @Override
+        public String toString() {
+            return "Body{" +
+                    "seq=" + seq +
+                    '}';
         }
 
         public static class Seq {
@@ -154,6 +185,14 @@ public class ThePlatformItem {
 
             public List<Par> getPars() {
                 return pars;
+            }
+
+            @Override
+            public String toString() {
+                return "Seq{" +
+                        "video=" + video +
+                        ", pars=" + pars +
+                        '}';
             }
 
             @Root(strict = false)
@@ -181,6 +220,14 @@ public class ThePlatformItem {
                     return textStreams;
                 }
 
+                @Override
+                public String toString() {
+                    return "Par{" +
+                            "video=" + video +
+                            ", textStreams=" + textStreams +
+                            '}';
+                }
+
                 @Root(strict = false)
                 public static class TextStream {
                     @Attribute
@@ -201,6 +248,16 @@ public class ThePlatformItem {
                         this.type = type;
                         this.closedCaptions = closedCaptions;
                         this.lang = lang;
+                    }
+
+                    @Override
+                    public String toString() {
+                        return "TextStream{" +
+                                "src='" + src + '\'' +
+                                ", type='" + type + '\'' +
+                                ", closedCaptions=" + closedCaptions +
+                                ", lang='" + lang + '\'' +
+                                '}';
                     }
                 }
             }
@@ -355,6 +412,30 @@ public class ThePlatformItem {
                     return params;
                 }
 
+                @Override
+                public String toString() {
+                    return "Video{" +
+                            "src='" + src + '\'' +
+                            ", title='" + title + '\'' +
+                            ", abstract_='" + abstract_ + '\'' +
+                            ", dur='" + dur + '\'' +
+                            ", guid=" + guid +
+                            ", categories='" + categories + '\'' +
+                            ", author='" + author + '\'' +
+                            ", copyright='" + copyright + '\'' +
+                            ", provider='" + provider + '\'' +
+                            ", type='" + type + '\'' +
+                            ", height=" + height +
+                            ", width=" + width +
+                            ", keywords='" + keywords + '\'' +
+                            ", ratings='" + ratings + '\'' +
+                            ", expression='" + expression + '\'' +
+                            ", clipBegin='" + clipBegin + '\'' +
+                            ", clipEnd='" + clipEnd + '\'' +
+                            ", params=" + params +
+                            '}';
+                }
+
                 @Root(strict = false)
                 public static class Param {
                     @Attribute
@@ -377,6 +458,14 @@ public class ThePlatformItem {
 
                     public String getValue() {
                         return value;
+                    }
+
+                    @Override
+                    public String toString() {
+                        return "Param{" +
+                                "name='" + name + '\'' +
+                                ", value='" + value + '\'' +
+                                '}';
                     }
                 }
             }

@@ -2,6 +2,7 @@ package ca.nick.rxcbcmpx.data;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
+import android.util.Log;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import io.reactivex.Flowable;
 
 public class VideoRepository {
 
+    public static final String TAG = VideoRepository.class.getSimpleName();
     private static final int NUM_RETRY_ATTEMPTS = 3;  // Arbitrary
 
     private final CbcDatabase cbcDatabase;
@@ -57,15 +59,15 @@ public class VideoRepository {
                 .flatMap(Flowable::fromIterable)
                 .flatMap(lineupItem -> polopolyService.stories(lineupItem.getSourceId())
                         .doOnNext(polopolyItem -> polopolyItem.setLineupItem(lineupItem))
-                        // Sometimes Polopoly videos are in an "off-time" or "not published" state
-                        // and will return a 404; discard these
+                        .doOnError(error -> Log.d(TAG, "Error getting polopolyItem using: " + lineupItem, error))
                         .onErrorResumeNext(Flowable.empty()))
                 .flatMap(polopolyItem -> tpFeedService.tpFeedItems(polopolyItem.getMediaid())
-                        .doOnNext(tpFeedItem -> tpFeedItem.setPolopolyItem(polopolyItem)))
+                        .doOnNext(tpFeedItem -> tpFeedItem.setPolopolyItem(polopolyItem))
+                        .doOnError(error -> Log.d(TAG, "Error getting tpFeedItem using: " + polopolyItem, error))
+                        .onErrorResumeNext(Flowable.empty()))
                 .flatMap(tpFeedItem -> thePlatformService.thePlatformItems(tpFeedItem.getSmilUrlId())
                         .doOnNext(thePlatformItem -> thePlatformItem.setTpFeedItem(tpFeedItem))
-                        .doOnError(Throwable::printStackTrace)
-                        // Discard 404 errors
+                        .doOnError(error -> Log.d(TAG, "Error getting thePlatformItem using: " + tpFeedItem, error))
                         .onErrorResumeNext(Flowable.empty()))
                 .map(VideoItem::fromRemoteData);
     }
