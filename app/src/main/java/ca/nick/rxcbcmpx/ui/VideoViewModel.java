@@ -38,6 +38,8 @@ public class VideoViewModel extends ViewModel {
     }
 
     public void loadVideos() {
+        compositeDisposable.clear();
+        
         Disposable disposable = videoRepository.nukeThenfetchThenPersistVideos()
                 .compose(RxExtensions.applySchedulers())
                 .startWith(startLoading())

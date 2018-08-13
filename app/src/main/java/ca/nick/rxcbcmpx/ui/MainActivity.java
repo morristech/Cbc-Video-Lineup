@@ -68,20 +68,12 @@ public class MainActivity extends DaggerAppCompatActivity {
         viewModel.loadVideos();
     }
 
-    private void purgeVideos() {
-        viewModel.nuke();
-    }
-
     private void setLoading(boolean isLoading) {
         progressBar.setVisibility(isLoading ? View.VISIBLE : View.INVISIBLE);
     }
 
-    private boolean isLoading() {
-        return progressBar.getVisibility() == View.VISIBLE;
-    }
-
     private void setSuccess(@Nullable List<VideoItem> videoItems) {
-        if (videoItems == null) {
+        if (videoItems == null || videoItems.isEmpty()) {
             return;
         }
 
@@ -108,10 +100,6 @@ public class MainActivity extends DaggerAppCompatActivity {
         switch (item.getItemId()) {
             case R.id.downloadVideos: {
                 loadVideos();
-                return true;
-            }
-            case R.id.deleteAllVideos: {
-                purgeVideos();
                 return true;
             }
             default:
