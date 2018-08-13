@@ -250,12 +250,12 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         }
 
         private void setPlayingUiState() {
-            playerView.setVisibility(View.VISIBLE);
+            playerView.setAlpha(1f);
             progressBar.setVisibility(View.INVISIBLE);
         }
 
         private void setPreviewingUiState() {
-            playerView.setVisibility(View.INVISIBLE);
+            playerView.setAlpha(0f);
             progressBar.setVisibility(View.INVISIBLE);
         }
 
