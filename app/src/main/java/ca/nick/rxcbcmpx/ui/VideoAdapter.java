@@ -99,8 +99,9 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     @Inject
     public VideoAdapter(Provider<ExoPlayer> exoPlayerProvider,
                         HlsMediaSource.Factory factory,
-                        MainActivity mainActivity) {
-        super(VideoDiffCallback.getInstance());
+                        MainActivity mainActivity,
+                        VideoDiffCallback videoDiffCallback) {
+        super(videoDiffCallback);
         this.exoPlayerProvider = exoPlayerProvider;
         this.factory = factory;
         this.activityContext = mainActivity;

@@ -16,6 +16,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 
+import ca.nick.rxcbcmpx.ui.VideoDiffCallback;
 import ca.nick.rxcbcmpx.utils.Constants;
 import dagger.Module;
 import dagger.Provides;
@@ -56,5 +57,10 @@ public class VideoModule {
     @Provides
     public HlsMediaSource.Factory hlsMediaSourceFactory(HlsDataSourceFactory hlsDataSourceFactory) {
         return new HlsMediaSource.Factory(hlsDataSourceFactory);
+    }
+
+    @Provides
+    public VideoDiffCallback videoDiffCallback() {
+        return VideoDiffCallback.getInstance();
     }
 }
