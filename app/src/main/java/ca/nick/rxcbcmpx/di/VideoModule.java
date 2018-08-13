@@ -15,10 +15,8 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 
-import ca.nick.rxcbcmpx.ui.MainActivity;
-import ca.nick.rxcbcmpx.ui.VideoAdapter;
+import ca.nick.rxcbcmpx.utils.Constants;
 import dagger.Module;
 import dagger.Provides;
 
@@ -46,13 +44,8 @@ public class VideoModule {
     }
 
     @Provides
-    public String userAgent(MainActivity mainActivity) {
-        return Util.getUserAgent(mainActivity, "cbc");
-    }
-
-    @Provides
-    public DataSource.Factory dataSourceFactory(String userAgent) {
-        return new DefaultHttpDataSourceFactory(userAgent);
+    public DataSource.Factory dataSourceFactory() {
+        return new DefaultHttpDataSourceFactory(Constants.USER_AGENT_VALUE);
     }
 
     @Provides

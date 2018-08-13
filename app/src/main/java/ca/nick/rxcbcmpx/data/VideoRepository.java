@@ -2,7 +2,6 @@ package ca.nick.rxcbcmpx.data;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
-import android.util.Log;
 
 import java.util.List;
 
