@@ -41,7 +41,7 @@ import ca.nick.rxcbcmpx.utils.GlideApp;
 public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewHolder>
         implements LifecycleObserver {
 
-    private static final String TAG = "asdf";
+    private static final String TAG = VideoAdapter.class.getSimpleName();
 
     private final Provider<ExoPlayer> exoPlayerProvider;
     private final HlsMediaSource.Factory factory;
@@ -284,6 +284,9 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             if (componentListener != null) {
                 exoPlayer.removeListener(componentListener);
                 componentListener = null;
+            }
+            if (fullScreenDialog != null) {
+                closeFullScreenDialog();
             }
             fullScreenDialog = null;
             isFullScreen = false;
