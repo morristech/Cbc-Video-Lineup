@@ -107,16 +107,15 @@ public class MainActivity extends DaggerAppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.downloadVideos: {
-                if (!isLoading()) {
-                    loadVideos();
-                }
+                loadVideos();
                 return true;
             }
             case R.id.deleteAllVideos: {
                 purgeVideos();
                 return true;
             }
-            default: return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
