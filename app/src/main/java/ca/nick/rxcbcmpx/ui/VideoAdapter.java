@@ -47,7 +47,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     private LinearLayoutManager layoutManager;
     private ExoPlayer exoPlayer;
 
-    // TODO: Use on ScrollChangeListener instead? 2nd item keeps trying to load
     private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
 
         private int currentlyPlayingPosition = -1;
@@ -70,8 +69,8 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
                 // Workaround to play final item in list
                 viewPositionToPlay = last;
             } else {
-                // Otherwise get the item nearest to the middle of the screen
-                viewPositionToPlay = (first + last) / 2;
+                // Otherwise get the item nearest to the top
+                viewPositionToPlay = first;
             }
 
             if (currentlyPlayingPosition != viewPositionToPlay) {
@@ -108,7 +107,9 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     @Override
     public void submitList(List<VideoItem> list) {
         super.submitList(list);
+        Log.d(TAG, "List submitted; size: " + list.size());
         if (exoPlayer != null && list.isEmpty()) {
+            // Pause any playing video when all adapter items are purged
             exoPlayer.setPlayWhenReady(false);
         }
     }
@@ -127,19 +128,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
     }
 
     @Override
-    public void onViewDetachedFromWindow(@NonNull VideoViewHolder holder) {
-        super.onViewDetachedFromWindow(holder);
-        lifecycleOwner.getLifecycle().removeObserver(holder);
-        holder.stopPlaying();
-    }
-
-    @Override
-    public void onViewAttachedToWindow(@NonNull VideoViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        lifecycleOwner.getLifecycle().addObserver(holder);
-    }
-
-    @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
         recyclerView.addOnScrollListener(onScrollListener);
@@ -153,6 +141,18 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
         recyclerView.removeOnScrollListener(onScrollListener);
         layoutManager = null;
         lifecycleOwner.getLifecycle().removeObserver(this);
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull VideoViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        lifecycleOwner.getLifecycle().addObserver(holder);
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull VideoViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        lifecycleOwner.getLifecycle().removeObserver(holder);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -188,6 +188,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             return;
         }
 
+        Log.d(TAG, "Releasing player");
         exoPlayer.release();
         exoPlayer = null;
     }
@@ -197,6 +198,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             return;
         }
 
+        Log.d(TAG, "Initializing player");
         exoPlayer = exoPlayerProvider.get();
     }
 
@@ -223,11 +225,12 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             previewImage = itemView.findViewById(R.id.preview_image);
             previewGroup = itemView.findViewById(R.id.preview_group);
             progressBar = itemView.findViewById(R.id.preview_progress_bar);
-            // Views are reused in RecyclerView, so reset their state
-            stopPlaying();
         }
 
         public void bind(VideoItem videoItem, Context context) {
+            // Stateful views are reused in RecyclerView, so reset their mutable state
+            stopPlaying();
+
             this.videoItem = videoItem;
             title.setText(videoItem.getTitle());
 
@@ -273,7 +276,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             playerView.setPlayer(null);
         }
 
-        // TODO: Add start/resume to resume video
+        // TODO: Add start/resume for videos after a pause/stop lifecycle change
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         public void pause() {
             if (Util.SDK_INT <= 23) {
@@ -286,10 +289,6 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
             if (Util.SDK_INT > 23) {
                 stopPlaying();
             }
-        }
-
-        private RecyclerView.ViewHolder getThis() {
-            return this;
         }
 
         private class ComponentListener extends Player.DefaultEventListener {
@@ -305,7 +304,7 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoAdapter.VideoViewH
                         progressBar.setVisibility(View.VISIBLE);
                         break;
                     case Player.STATE_READY:
-                        Log.d(TAG, "ready, isLoading: " + isLoading() + ", playWhenReady: " + playWhenReady + ", for: " + getThis());
+                        Log.d(TAG, "ready, isLoading: " + isLoading() + ", playWhenReady: " + playWhenReady + ", for: " + VideoViewHolder.this);
                         if (playWhenReady && isLoading()) {
                             setPlayingUiState();
                         }

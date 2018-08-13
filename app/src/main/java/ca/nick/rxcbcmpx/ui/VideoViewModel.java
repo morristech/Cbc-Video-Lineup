@@ -20,7 +20,7 @@ import io.reactivex.disposables.Disposable;
 
 public class VideoViewModel extends ViewModel {
 
-    private static final String TAG = "cbc";
+    private static final String TAG = VideoViewModel.class.getSimpleName();
 
     private MediatorLiveData<Resource<List<VideoItem>>> localVideoItems = new MediatorLiveData<>();
     private final VideoRepository videoRepository;

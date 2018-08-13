@@ -25,6 +25,7 @@ import dagger.android.support.DaggerAppCompatActivity;
 
 // TODO: Full screen: https://geoffledak.com/blog/2017/09/11/how-to-add-a-fullscreen-toggle-button-to-exoplayer-in-android/
 // TODO: Remove all controls except mute?
+// TODO: Move UI to a retained fragment
 public class MainActivity extends DaggerAppCompatActivity {
 
     @Inject
@@ -119,14 +120,14 @@ public class MainActivity extends DaggerAppCompatActivity {
         }
     }
 
-    // TODO
+    // TODO: Make this work
     private ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP | ItemTouchHelper.DOWN,
             ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-            return false;
+            return true;
         }
 
         @Override
