@@ -24,7 +24,7 @@ public class VideoItem {
     private final String live;
     private final String thumbnailUrl;
     @Nullable
-    private final String captions;
+    private final String captionsUrl;
     private final long insertionTimestamp;
 
     public VideoItem(long guid,
@@ -36,7 +36,7 @@ public class VideoItem {
                      String publishedDate,
                      String live,
                      String thumbnailUrl,
-                     @Nullable String captions,
+                     @Nullable String captionsUrl,
                      long insertionTimestamp) {
         this.guid = guid;
         this.polopolyId = polopolyId;
@@ -47,7 +47,7 @@ public class VideoItem {
         this.publishedDate = publishedDate;
         this.live = live;
         this.thumbnailUrl = thumbnailUrl;
-        this.captions = captions;
+        this.captionsUrl = captionsUrl;
         this.insertionTimestamp = insertionTimestamp;
     }
 
@@ -107,8 +107,8 @@ public class VideoItem {
     }
 
     @Nullable
-    public String getCaptions() {
-        return captions;
+    public String getCaptionsUrl() {
+        return captionsUrl;
     }
 
     public long getInsertionTimestamp() {
