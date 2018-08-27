@@ -56,20 +56,6 @@
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <!--<android.support.v7.widget.RecyclerView-->
-    <!--android:id="@+id/recyclerView"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:layout_marginBottom="8dp"-->
-    <!--android:layout_marginEnd="8dp"-->
-    <!--android:layout_marginStart="8dp"-->
-    <!--android:layout_marginTop="8dp"-->
-    <!--android:clipToPadding="false"-->
-    <!--android:paddingBottom="80dp"-->
-    <!--android:scrollbars="vertical"-->
-    <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
-    <!--app:layoutManager="android.support.v7.widget.LinearLayoutManager" />-->
-
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
@@ -99,6 +85,6 @@
         app:backgroundTint="@color/colorPrimary"
         app:layout_anchor="@+id/toroContainer"
         app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@drawable/ic_share_24dp" />
+        app:srcCompat="@drawable/ic_share" />
 
 </android.support.design.widget.CoordinatorLayout>

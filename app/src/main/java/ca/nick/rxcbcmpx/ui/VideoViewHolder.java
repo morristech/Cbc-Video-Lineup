@@ -100,8 +100,9 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
         }
 
         if (onErrorListener == null) {
-            // TODO: Something more meaningful to the user
-            onErrorListener = error -> hideProgressBar();
+            onErrorListener = error -> {
+                hideProgressBar();
+            };
         }
 
         helper.addErrorListener(onErrorListener);
