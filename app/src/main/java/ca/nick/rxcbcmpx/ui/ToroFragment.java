@@ -27,29 +27,30 @@ import ca.nick.rxcbcmpx.models.VideoItem;
 import ca.nick.rxcbcmpx.utils.Resource;
 import ca.nick.rxcbcmpx.utils.Status;
 import dagger.android.support.DaggerFragment;
+import im.ene.toro.widget.Container;
 
-public class VideoLineupFragment extends DaggerFragment {
+public class ToroFragment extends DaggerFragment {
 
-    public static final String TAG = VideoLineupFragment.class.getSimpleName();
+    public static final String TAG = ToroFragment.class.getSimpleName();
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
     @Inject
-    VideoAdapter adapter;
+    ToroAdapter adapter;
 
     private VideoViewModel viewModel;
-    private RecyclerView recyclerView;
+    private Toolbar toolbar;
     private ProgressBar progressBar;
     private TextView errorMessage;
-    private Toolbar toolbar;
+    private Container container;
     private ToolbarSetterUpperCallback callback;
 
     public interface ToolbarSetterUpperCallback {
         void setToolbar(Toolbar toolbar);
     }
 
-    public static VideoLineupFragment create() {
-        return new VideoLineupFragment();
+    public static ToroFragment create() {
+        return new ToroFragment();
     }
 
     @Override
@@ -68,7 +69,7 @@ public class VideoLineupFragment extends DaggerFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_video_lineup, container, false);
+        return inflater.inflate(R.layout.fragment_toro, container, false);
     }
 
     @Override
@@ -82,8 +83,8 @@ public class VideoLineupFragment extends DaggerFragment {
         toolbar = view.findViewById(R.id.toolbar);
         progressBar = view.findViewById(R.id.progressBar);
         errorMessage = view.findViewById(R.id.errorMessage);
-        recyclerView = view.findViewById(R.id.recyclerView);
-        recyclerView.setAdapter(adapter);
+        container = view.findViewById(R.id.toroContainer);
+        container.setAdapter(adapter);
     }
 
     @Override
@@ -97,6 +98,7 @@ public class VideoLineupFragment extends DaggerFragment {
         callback.setToolbar(toolbar);
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(VideoViewModel.class);
         viewModel.getLocalVideoItems().observe(this, this::renderVideoItems);
+//        viewModel.loadVideos();
     }
 
     private void renderVideoItems(Resource<List<VideoItem>> resource) {

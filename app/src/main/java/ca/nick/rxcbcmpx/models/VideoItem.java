@@ -2,6 +2,7 @@ package ca.nick.rxcbcmpx.models;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.net.Uri;
 import android.support.annotation.Nullable;
 
 import java.util.Objects;
@@ -76,6 +77,10 @@ public class VideoItem {
 
     public String getSrc() {
         return src;
+    }
+
+    public Uri getSrcUri() {
+        return Uri.parse(src);
     }
 
     public String getPolopolyId() {
