@@ -41,6 +41,7 @@ public class VideoViewModel extends ViewModel {
     }
 
     public void loadVideos() {
+        clearRequestsInFlight();
         videoRepository.nukeThenfetchThenPersistVideos()
                 .compose(RxExtensions.applySchedulers())
                 .subscribe(createStateManager());
@@ -52,22 +53,27 @@ public class VideoViewModel extends ViewModel {
                 .subscribe(createStateManager());
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        compositeDisposable.dispose();
-    }
-
     public void delete(VideoItem videoItem) {
         videoRepository.deleteLocally(videoItem)
                 .compose(RxExtensions.applySchedulers())
                 .subscribe(createStateManager());
     }
 
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        compositeDisposable.dispose();
+    }
+
+    private void clearRequestsInFlight() {
+        compositeDisposable.clear();
+    }
+
     private CompletableObserver createStateManager() {
         return new CompletableObserver() {
             @Override
             public void onSubscribe(Disposable d) {
+                compositeDisposable.add(d);
                 state.setValue(Resource.loading());
             }
 
