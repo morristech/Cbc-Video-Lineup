@@ -16,7 +16,7 @@ import dagger.android.support.DaggerAppCompatActivity;
 // TODO: This library: https://github.com/eneim/toro , https://eneim.github.io/2017/07/09/toro-101-how-to-1/
 // TODO: Can retrofit services return a Single<T> instead of Flowable<T>?
 public class MainActivity extends DaggerAppCompatActivity
-        implements ToroFragment.ToolbarSetterUpperCallback {
+        implements VideoLineupFragment.ToolbarSetterUpperCallback {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +26,7 @@ public class MainActivity extends DaggerAppCompatActivity
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.container, ToroFragment.create(), ToroFragment.TAG)
+                    .replace(R.id.container, VideoLineupFragment.create(), VideoLineupFragment.TAG)
                     .commit();
         }
     }

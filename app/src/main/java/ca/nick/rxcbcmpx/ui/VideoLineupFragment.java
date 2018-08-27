@@ -6,9 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +25,7 @@ import ca.nick.rxcbcmpx.models.VideoItem;
 import ca.nick.rxcbcmpx.utils.Resource;
 import ca.nick.rxcbcmpx.utils.Status;
 import dagger.android.support.DaggerFragment;
+import im.ene.toro.widget.Container;
 
 public class VideoLineupFragment extends DaggerFragment {
 
@@ -37,11 +36,13 @@ public class VideoLineupFragment extends DaggerFragment {
     @Inject
     VideoAdapter adapter;
 
+    private static final String KEY_LIST_POSITION = "list_position";
+
     private VideoViewModel viewModel;
-    private RecyclerView recyclerView;
+    private Toolbar toolbar;
     private ProgressBar progressBar;
     private TextView errorMessage;
-    private Toolbar toolbar;
+    private Container container;
     private ToolbarSetterUpperCallback callback;
 
     public interface ToolbarSetterUpperCallback {
@@ -68,7 +69,7 @@ public class VideoLineupFragment extends DaggerFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_video_lineup, container, false);
+        return inflater.inflate(R.layout.fragment_toro, container, false);
     }
 
     @Override
@@ -76,14 +77,15 @@ public class VideoLineupFragment extends DaggerFragment {
         super.onViewCreated(view, savedInstanceState);
 
         if (savedInstanceState != null) {
-            return;
+            int position = savedInstanceState.getInt(KEY_LIST_POSITION);
+//            container.scrollToPosition(position);
+        } else {
+            toolbar = view.findViewById(R.id.toolbar);
+            progressBar = view.findViewById(R.id.progressBar);
+            errorMessage = view.findViewById(R.id.errorMessage);
+            container = view.findViewById(R.id.toroContainer);
+            container.setAdapter(adapter);
         }
-
-        toolbar = view.findViewById(R.id.toolbar);
-        progressBar = view.findViewById(R.id.progressBar);
-        errorMessage = view.findViewById(R.id.errorMessage);
-        recyclerView = view.findViewById(R.id.recyclerView);
-        recyclerView.setAdapter(adapter);
     }
 
     @Override
@@ -97,6 +99,7 @@ public class VideoLineupFragment extends DaggerFragment {
         callback.setToolbar(toolbar);
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(VideoViewModel.class);
         viewModel.getLocalVideoItems().observe(this, this::renderVideoItems);
+//        viewModel.loadVideos();
     }
 
     private void renderVideoItems(Resource<List<VideoItem>> resource) {
@@ -152,20 +155,10 @@ public class VideoLineupFragment extends DaggerFragment {
         }
     }
 
-    // TODO: Make this work
-    private ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-            ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
 
-        @Override
-        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-            return true;
-        }
-
-        @Override
-        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            VideoItem videoItem = ((VideoAdapter.VideoViewHolder) viewHolder).getVideoItem();
-            viewModel.delete(videoItem);
-        }
-    });
+//        int position = adapter.get
+    }
 }
