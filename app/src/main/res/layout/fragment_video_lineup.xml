@@ -56,15 +56,6 @@
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="invisible"
-        tools:visibility="visible" />
-
     <TextView
         android:id="@+id/errorMessage"
         android:layout_width="wrap_content"
@@ -86,5 +77,18 @@
         app:layout_anchor="@+id/toroContainer"
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_share" />
+
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_gravity="bottom"
+        android:indeterminate="true"
+        app:colorAccent="@color/colorPrimary"
+        app:mpb_progressStyle="horizontal"
+        app:mpb_useIntrinsicPadding="false"
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
 </android.support.design.widget.CoordinatorLayout>

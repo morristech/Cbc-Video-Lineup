@@ -130,6 +130,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
     public void pause() {
         if (helper != null) {
             helper.pause();
+            hideProgressBar();
             playerView.hideController();
         }
     }

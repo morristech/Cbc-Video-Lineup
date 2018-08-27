@@ -2,8 +2,8 @@ package ca.nick.rxcbcmpx.ui;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MediatorLiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.util.Log;
 
 import java.util.List;
 
@@ -13,8 +13,7 @@ import ca.nick.rxcbcmpx.data.VideoRepository;
 import ca.nick.rxcbcmpx.models.VideoItem;
 import ca.nick.rxcbcmpx.utils.Resource;
 import ca.nick.rxcbcmpx.utils.RxExtensions;
-import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
+import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -22,47 +21,35 @@ public class VideoViewModel extends ViewModel {
 
     private static final String TAG = VideoViewModel.class.getSimpleName();
 
-    private MediatorLiveData<Resource<List<VideoItem>>> localVideoItems = new MediatorLiveData<>();
+    private MutableLiveData<Resource<Void>> state = new MutableLiveData<>();
+    private MediatorLiveData<List<VideoItem>> localVideoItems = new MediatorLiveData<>();
     private final VideoRepository videoRepository;
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Inject
     public VideoViewModel(VideoRepository videoRepository) {
         this.videoRepository = videoRepository;
-        localVideoItems.addSource(videoRepository.getLocalVideoItems(),
-                items -> localVideoItems.setValue(Resource.success(items)));
+        localVideoItems.addSource(videoRepository.getLocalVideoItems(), localVideoItems::setValue);
     }
 
-    public LiveData<Resource<List<VideoItem>>> getLocalVideoItems() {
+    public LiveData<List<VideoItem>> getLocalVideoItems() {
         return localVideoItems;
     }
 
-    public void loadVideos() {
-        compositeDisposable.clear();
-        
-        Disposable disposable = videoRepository.nukeThenfetchThenPersistVideos()
-                .compose(RxExtensions.applySchedulers())
-                .startWith(startLoading())
-                .subscribe(() -> Log.d(TAG, "Completed fetching and persisting remote videos"),
-                        error -> localVideoItems.setValue(Resource.error(error)));
+    public MutableLiveData<Resource<Void>> getState() {
+        return state;
+    }
 
-        compositeDisposable.add(disposable);
+    public void loadVideos() {
+        videoRepository.nukeThenfetchThenPersistVideos()
+                .compose(RxExtensions.applySchedulers())
+                .subscribe(createStateManager());
     }
 
     public void nuke() {
-        compositeDisposable.clear();
-
-        Disposable disposable = videoRepository.nukeDatabase()
+        videoRepository.nukeDatabase()
                 .compose(RxExtensions.applySchedulers())
-                .startWith(startLoading())
-                .subscribe(() -> Log.d(TAG, "Nuking complete"),
-                        error -> localVideoItems.setValue(Resource.error(error)));
-
-        compositeDisposable.add(disposable);
-    }
-
-    private CompletableSource startLoading() {
-        return Completable.fromAction(() -> localVideoItems.setValue(Resource.loading()));
+                .subscribe(createStateManager());
     }
 
     @Override
@@ -72,12 +59,28 @@ public class VideoViewModel extends ViewModel {
     }
 
     public void delete(VideoItem videoItem) {
-        Disposable disposable = videoRepository.deleteLocally(videoItem)
+        videoRepository.deleteLocally(videoItem)
                 .compose(RxExtensions.applySchedulers())
-                .startWith(startLoading())
-                .subscribe(() -> Log.d(TAG, "Removed video item : " + videoItem.getGuid()),
-                        error -> localVideoItems.setValue(Resource.error(error)));
+                .subscribe(createStateManager());
+    }
 
-        compositeDisposable.add(disposable);
+    private CompletableObserver createStateManager() {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                state.setValue(Resource.loading());
+            }
+
+            @Override
+            public void onComplete() {
+                state.setValue(Resource.success(null));
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                state.setValue(Resource.error(e));
+
+            }
+        };
     }
 }
