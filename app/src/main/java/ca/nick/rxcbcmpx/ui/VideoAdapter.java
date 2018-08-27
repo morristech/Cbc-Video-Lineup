@@ -11,7 +11,10 @@ import javax.inject.Inject;
 import ca.nick.rxcbcmpx.R;
 import ca.nick.rxcbcmpx.models.VideoItem;
 
-public class VideoAdapter extends ListAdapter<VideoItem, VideoViewHolder> {
+public class VideoAdapter extends ListAdapter<VideoItem, VideoViewHolder>
+        implements VideoViewHolder.PlayingPositionListener {
+
+    private int lastPlayingPosition;
 
     @Inject
     protected VideoAdapter(@NonNull VideoDiffCallback videoDiffCallback) {
@@ -24,11 +27,20 @@ public class VideoAdapter extends ListAdapter<VideoItem, VideoViewHolder> {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_video, parent, false);
 
-        return new VideoViewHolder(view);
+        return new VideoViewHolder(view, this);
     }
 
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
         holder.bind(getItem(position));
+    }
+
+    @Override
+    public void onPositionPlaying(int adapterPosition) {
+        lastPlayingPosition = adapterPosition;
+    }
+
+    public int getLastPlayingPosition() {
+        return lastPlayingPosition;
     }
 }

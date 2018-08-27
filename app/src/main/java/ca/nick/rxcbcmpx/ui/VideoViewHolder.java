@@ -25,25 +25,32 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
         implements ToroPlayer {
 
     @Nullable
-    ExoPlayerViewHelper helper;
+    private ExoPlayerViewHelper helper;
     @Nullable
-    Uri mediaUri;
+    private Uri mediaUri;
     @Nullable
     private EventListener eventListener;
     @Nullable
     private OnErrorListener onErrorListener;
+    private PlayingPositionListener listener;
 
     private TextView title;
     private PlayerView playerView;
     private ImageView previewImage;
     private ProgressBar progressBar;
 
-    public VideoViewHolder(View itemView) {
+    public interface PlayingPositionListener {
+        void onPositionPlaying(int adapterPosition);
+    }
+
+    public VideoViewHolder(View itemView, PlayingPositionListener listener) {
         super(itemView);
         playerView = itemView.findViewById(R.id.player);
         title = itemView.findViewById(R.id.title);
         previewImage = itemView.findViewById(R.id.preview_image);
         progressBar = itemView.findViewById(R.id.preview_progress_bar);
+
+        this.listener = listener;
     }
 
     public void bind(VideoItem videoItem) {
@@ -86,6 +93,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
                 public void onPlaying() {
                     hideProgressBar();
                     playerView.setAlpha(1f);
+                    listener.onPositionPlaying(getAdapterPosition());
                 }
 
                 @Override

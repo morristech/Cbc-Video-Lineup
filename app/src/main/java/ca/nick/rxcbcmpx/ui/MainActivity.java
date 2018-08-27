@@ -7,8 +7,6 @@ import ca.nick.rxcbcmpx.R;
 import dagger.android.support.DaggerAppCompatActivity;
 
 // TODO: Full screen: https://geoffledak.com/blog/2017/09/11/how-to-add-a-fullscreen-toggle-button-to-exoplayer-in-android/
-// TODO: Remove all controls except mute?
-// TODO: Move UI to a retained fragment
 // TODO: Add material horizontal progressbar on bottom of screen. Use another LiveData<State> for this
 // TODO: Add snackbar for error handling with Retry button
 // TODO: Need to not start the video media source for every item scrolled thru quickly: onFling?

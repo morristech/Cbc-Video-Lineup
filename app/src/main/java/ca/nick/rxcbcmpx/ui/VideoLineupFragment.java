@@ -3,9 +3,11 @@ package ca.nick.rxcbcmpx.ui;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,8 +37,6 @@ public class VideoLineupFragment extends DaggerFragment {
     ViewModelProvider.Factory viewModelFactory;
     @Inject
     VideoAdapter adapter;
-
-    private static final String KEY_LIST_POSITION = "list_position";
 
     private VideoViewModel viewModel;
     private Toolbar toolbar;
@@ -76,25 +76,27 @@ public class VideoLineupFragment extends DaggerFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (savedInstanceState != null) {
-            int position = savedInstanceState.getInt(KEY_LIST_POSITION);
-//            container.scrollToPosition(position);
-        } else {
-            toolbar = view.findViewById(R.id.toolbar);
-            progressBar = view.findViewById(R.id.progressBar);
-            errorMessage = view.findViewById(R.id.errorMessage);
-            container = view.findViewById(R.id.toroContainer);
-            container.setAdapter(adapter);
+        toolbar = view.findViewById(R.id.toolbar);
+        progressBar = view.findViewById(R.id.progressBar);
+        errorMessage = view.findViewById(R.id.errorMessage);
+        container = view.findViewById(R.id.toroContainer);
+        container.setAdapter(adapter);
+        reconcileCoordinatorLayoutForToroContainer();
+    }
+
+    private void reconcileCoordinatorLayoutForToroContainer() {
+        ViewGroup.LayoutParams params = container.getLayoutParams();
+        if (params instanceof CoordinatorLayout.LayoutParams) {
+            CoordinatorLayout.Behavior temp = ((CoordinatorLayout.LayoutParams) params).getBehavior();
+            if (temp != null) {
+                ((CoordinatorLayout.LayoutParams) params).setBehavior(new Container.Behavior(temp));
+            }
         }
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            return;
-        }
 
         callback.setToolbar(toolbar);
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(VideoViewModel.class);
@@ -121,7 +123,7 @@ public class VideoLineupFragment extends DaggerFragment {
     }
 
     private void setSuccess(@Nullable List<VideoItem> videoItems) {
-        if (videoItems == null || videoItems.isEmpty()) {
+        if (videoItems == null) {
             return;
         }
 
@@ -156,9 +158,8 @@ public class VideoLineupFragment extends DaggerFragment {
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-//        int position = adapter.get
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        container.scrollToPosition(adapter.getLastPlayingPosition());
     }
 }
