@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import ca.nick.rxcbcmpx.R;
 import ca.nick.rxcbcmpx.models.VideoItem;
 
-public class VideoAdapter extends ListAdapter<VideoItem, ToroViewHolder> {
+public class VideoAdapter extends ListAdapter<VideoItem, VideoViewHolder> {
 
     @Inject
     protected VideoAdapter(@NonNull VideoDiffCallback videoDiffCallback) {
@@ -20,15 +20,15 @@ public class VideoAdapter extends ListAdapter<VideoItem, ToroViewHolder> {
 
     @NonNull
     @Override
-    public ToroViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public VideoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_toro_video, parent, false);
+                .inflate(R.layout.item_video, parent, false);
 
-        return new ToroViewHolder(view);
+        return new VideoViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ToroViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
         holder.bind(getItem(position));
     }
 }

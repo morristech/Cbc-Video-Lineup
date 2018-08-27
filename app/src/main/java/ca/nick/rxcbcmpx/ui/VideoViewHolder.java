@@ -20,7 +20,7 @@ import im.ene.toro.exoplayer.ExoPlayerViewHelper;
 import im.ene.toro.media.PlaybackInfo;
 import im.ene.toro.widget.Container;
 
-public class ToroViewHolder extends RecyclerView.ViewHolder
+public class VideoViewHolder extends RecyclerView.ViewHolder
         implements ToroPlayer {
 
     @Nullable
@@ -37,7 +37,7 @@ public class ToroViewHolder extends RecyclerView.ViewHolder
     private ImageView previewImage;
     private ProgressBar progressBar;
 
-    public ToroViewHolder(View itemView) {
+    public VideoViewHolder(View itemView) {
         super(itemView);
         playerView = itemView.findViewById(R.id.player);
         title = itemView.findViewById(R.id.title);

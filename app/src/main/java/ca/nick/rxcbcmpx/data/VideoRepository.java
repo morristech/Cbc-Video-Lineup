@@ -62,7 +62,12 @@ public class VideoRepository {
                         .doOnError(error -> Log.d(TAG, "Error getting polopolyItem using: " + lineupItem, error))
                         .onErrorResumeNext(Flowable.empty()))
                 .flatMap(polopolyItem -> tpFeedService.tpFeedItems(polopolyItem.getMediaid())
-                        .doOnNext(tpFeedItem -> tpFeedItem.setPolopolyItem(polopolyItem))
+                        .doOnNext(tpFeedItem -> {
+                            if (tpFeedItem.getEntries().isEmpty()) {
+                                throw new RuntimeException("Entries were empty");
+                            }
+                            tpFeedItem.setPolopolyItem(polopolyItem);
+                        })
                         .doOnError(error -> Log.d(TAG, "Error getting tpFeedItem using: " + polopolyItem, error))
                         .onErrorResumeNext(Flowable.empty()))
                 .flatMap(tpFeedItem -> thePlatformService.thePlatformItems(tpFeedItem.getSmilUrlId())
