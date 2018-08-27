@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.exoplayer2.ui.PlayerView;
 
@@ -93,14 +94,13 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
                 }
 
                 @Override
-                public void onCompleted() {
-                    // Nada
-                }
+                public void onCompleted() {}
             };
         }
 
         if (onErrorListener == null) {
             onErrorListener = error -> {
+                Toast.makeText(container.getContext(), "Error loading video", Toast.LENGTH_LONG).show();
                 hideProgressBar();
             };
         }
