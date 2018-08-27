@@ -5,8 +5,8 @@ import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 
 @Module
-public abstract class MainActivityModule {
+public abstract class ActivitiesModule {
 
-    @ContributesAndroidInjector(modules = VideoModule.class)
+    @ContributesAndroidInjector(modules = FragmentsModule.class)
     abstract MainActivity mainActivityInjector();
 }

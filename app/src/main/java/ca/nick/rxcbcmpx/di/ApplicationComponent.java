@@ -16,7 +16,7 @@ import dagger.android.support.AndroidSupportInjectionModule;
         ApplicationModule.class,
         NetworkingModule.class,
         ViewModelsModule.class,
-        MainActivityModule.class})
+        ActivitiesModule.class})
 public interface ApplicationComponent extends AndroidInjector<CbcApplication> {
 
     @Component.Builder
