@@ -116,7 +116,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
                 @Override
                 public void onPlaying() {
                     hideProgressBar();
-                    playerView.setAlpha(1f);
+                    showPlayer();
                     listener.onPositionPlaying(getAdapterPosition());
                 }
 
@@ -159,6 +159,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
         }
     }
 
+
     @Override
     public boolean isPlaying() {
         return helper != null && helper.isPlaying();
@@ -175,7 +176,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
             }
             helper.release();
             helper = null;
-            playerView.setAlpha(0f);
+            hidePlayer();
         }
     }
 
@@ -195,6 +196,14 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
 
     private void showProgressBar() {
         progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void hidePlayer() {
+        playerView.setAlpha(0f);
+    }
+
+    private void showPlayer() {
+        playerView.setAlpha(1f);
     }
 
     @Override
