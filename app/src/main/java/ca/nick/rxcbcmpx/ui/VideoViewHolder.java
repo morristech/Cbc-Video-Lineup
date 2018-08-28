@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.Group;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -49,6 +50,9 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
     private Dialog fullScreenDialog;
     private FrameLayout toggleFullScreen;
     private ImageView iconFullScreen;
+    private TextView dialogVideoTitle;
+    private TextView dialogVideoDescription;
+    private Group dialogVideoText;
 
     public interface PlayingPositionListener {
         void onPositionPlaying(int adapterPosition);
@@ -63,6 +67,9 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
         toggleFullScreen = playerView.findViewById(R.id.toggleFullScreen);
         toggleFullScreen.setOnClickListener(this);
         iconFullScreen = playerView.findViewById(R.id.iconFullScreen);
+        dialogVideoTitle = playerView.findViewById(R.id.videoTitle);
+        dialogVideoDescription = playerView.findViewById(R.id.videoDescription);
+        dialogVideoText = playerView.findViewById(R.id.videoText);
 
         this.listener = listener;
     }
@@ -71,6 +78,8 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
         this.videoItem = videoItem;
         mediaUri = videoItem.getSrcUri();
         title.setText(videoItem.getTitle());
+        dialogVideoTitle.setText(videoItem.getTitle());
+        dialogVideoDescription.setText(videoItem.getDescription());
 
         GlideApp.with(previewImage)
                 .load(videoItem.getThumbnailUrl())
@@ -205,6 +214,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
     private void openFullScreenDialog(Context activityContext) {
         initFullScreenDialog(activityContext);
 
+        dialogVideoText.setVisibility(View.VISIBLE);
         ((ViewGroup) playerView.getParent()).removeView(playerView);
         fullScreenDialog.addContentView(playerView,
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -223,6 +233,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
     }
 
     private void closeFullScreenDialog(Context activityContext) {
+        dialogVideoText.setVisibility(View.GONE);
         ((ViewGroup) playerView.getParent()).removeView(playerView);
         ((FrameLayout) itemView.findViewById(R.id.player_container)).addView(playerView);
         iconFullScreen.setImageDrawable(ContextCompat.getDrawable(activityContext, R.drawable.ic_fullscreen));

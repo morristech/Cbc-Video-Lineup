@@ -62,7 +62,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:alpha="0"
-                app:show_timeout="2000"
+                app:show_timeout="4000"
                 app:controller_layout_id="@layout/custom_playback_control" />
 
             <ProgressBar

@@ -7,6 +7,44 @@
     android:layout_gravity="bottom"
     android:background="@drawable/playback_control_background">
 
+    <TextView
+        android:id="@+id/videoTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Title" />
+
+    <TextView
+        android:id="@+id/videoDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/videoTitle"
+        tools:text="This is some descriptive text" />
+
+    <android.support.constraint.Group
+        android:id="@+id/videoText"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:constraint_referenced_ids="videoTitle, videoDescription"
+        tools:visibility="visible"/>
+
     <FrameLayout
         android:id="@+id/frameLayout"
         android:layout_width="wrap_content"
@@ -18,7 +56,7 @@
         app:layout_constraintEnd_toStartOf="@+id/exo_progress"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/videoDescription">
 
         <ImageButton
             android:id="@+id/exo_pause"
@@ -44,7 +82,7 @@
         app:layout_constraintEnd_toStartOf="@+id/exo_duration"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/frameLayout"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/videoDescription" />
 
     <TextView
         android:id="@+id/exo_duration"
@@ -60,18 +98,20 @@
         app:layout_constraintEnd_toEndOf="@+id/toggleFullScreen"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/exo_progress"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/videoDescription"
         tools:text="123:45" />
 
     <FrameLayout
         android:id="@+id/toggleFullScreen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/exo_duration"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/videoDescription">
 
         <ImageView
             android:id="@+id/iconFullScreen"
@@ -81,7 +121,6 @@
             app:srcCompat="@drawable/ic_fullscreen" />
 
     </FrameLayout>
-
 
 
 </android.support.constraint.ConstraintLayout>
