@@ -215,6 +215,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
         initFullScreenDialog(activityContext);
 
         dialogVideoText.setVisibility(View.VISIBLE);
+        setLongPlayerTimeout();
         ((ViewGroup) playerView.getParent()).removeView(playerView);
         fullScreenDialog.addContentView(playerView,
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -234,6 +235,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
 
     private void closeFullScreenDialog(Context activityContext) {
         dialogVideoText.setVisibility(View.GONE);
+        setShortPlayerTimeout();
         ((ViewGroup) playerView.getParent()).removeView(playerView);
         ((FrameLayout) itemView.findViewById(R.id.player_container)).addView(playerView);
         iconFullScreen.setImageDrawable(ContextCompat.getDrawable(activityContext, R.drawable.ic_fullscreen));
@@ -243,5 +245,13 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
 
     private boolean isFullScreen() {
         return fullScreenDialog != null;
+    }
+
+    private void setLongPlayerTimeout() {
+        playerView.setControllerShowTimeoutMs(5 * 1000);
+    }
+
+    private void setShortPlayerTimeout() {
+        playerView.setControllerShowTimeoutMs(2 * 1000);
     }
 }
