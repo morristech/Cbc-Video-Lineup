@@ -79,6 +79,10 @@ public class LineupItem {
         return typeAttributes;
     }
 
+    public String getImageLarge() {
+        return getTypeAttributes().imageLarge;
+    }
+
     public boolean isPolopolySource() {
         return POLOPOLY_SOURCE.equals(source);
     }
@@ -115,19 +119,18 @@ public class LineupItem {
     public static class TypeAttributes {
 
         private final String url;
+        private final String imageLarge;
 
-        public TypeAttributes(String url) {
+        public TypeAttributes(String url, String imageLarge) {
             this.url = url;
-        }
-
-        public String getUrl() {
-            return url;
+            this.imageLarge = imageLarge;
         }
 
         @Override
         public String toString() {
             return "TypeAttributes{" +
                     "url='" + url + '\'' +
+                    ", imageLarge='" + imageLarge + '\'' +
                     '}';
         }
     }

@@ -8,6 +8,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import ca.nick.rxcbcmpx.models.PolopolyItem;
+import ca.nick.rxcbcmpx.models.ThePlatformItem;
+import ca.nick.rxcbcmpx.models.TpFeedItem;
 import ca.nick.rxcbcmpx.models.VideoItem;
 import ca.nick.rxcbcmpx.networking.AggregateApiService;
 import ca.nick.rxcbcmpx.networking.ThePlatformService;
@@ -57,24 +60,46 @@ public class VideoRepository {
         return aggregateApiService.topStoriesVideos()
                 .retry(NUM_RETRY_ATTEMPTS)
                 .flatMap(Flowable::fromIterable)
-                .flatMap(lineupItem -> polopolyService.stories(lineupItem.getSourceId())
-                        .doOnNext(polopolyItem -> polopolyItem.setLineupItem(lineupItem))
-                        .doOnError(error -> Log.d(TAG, "Error getting polopolyItem using: " + lineupItem, error))
-                        .onErrorResumeNext(Flowable.empty()))
-                .flatMap(polopolyItem -> tpFeedService.tpFeedItems(polopolyItem.getMediaid())
-                        .doOnNext(tpFeedItem -> {
-                            if (tpFeedItem.getEntries().isEmpty()) {
-                                throw new RuntimeException("Entries were empty");
-                            }
-                            tpFeedItem.setPolopolyItem(polopolyItem);
-                        })
-                        .doOnError(error -> Log.d(TAG, "Error getting tpFeedItem using: " + polopolyItem, error))
-                        .onErrorResumeNext(Flowable.empty()))
-                .flatMap(tpFeedItem -> thePlatformService.thePlatformItems(tpFeedItem.getSmilUrlId())
-                        .doOnNext(thePlatformItem -> thePlatformItem.setTpFeedItem(tpFeedItem))
-                        .doOnError(error -> Log.d(TAG, "Error getting thePlatformItem using: " + tpFeedItem, error))
-                        .onErrorResumeNext(Flowable.empty()))
+                .flatMap(lineupItem -> {
+                    Flowable<TpFeedItem> tpFeedItemFlowable;
+
+                    if (lineupItem.isPolopolySource()) {
+                        tpFeedItemFlowable = fetchPolopolyItem(lineupItem.getSourceId())
+                                .flatMap(item -> fetchTpFeedItem(item.getMediaid()));
+                    } else {
+                        tpFeedItemFlowable = fetchTpFeedItem(lineupItem.getMpxSourceGuid());
+
+                    }
+
+                    return tpFeedItemFlowable
+                            .doOnNext(item -> item.setLineupItem(lineupItem));
+                })
+                .flatMap(tpFeedItem -> fetchThePlatformItem(tpFeedItem.getSmilUrlId())
+                        .doOnNext(thePlatformItem -> thePlatformItem.setTpFeedItem(tpFeedItem)))
                 .map(VideoItem::fromRemoteData);
+    }
+
+    private Flowable<PolopolyItem> fetchPolopolyItem(String sourceId) {
+        return polopolyService.stories(sourceId)
+                .doOnError(error -> Log.d(TAG, "Error getting polopolyItem using: " + sourceId, error))
+                .onErrorResumeNext(Flowable.empty());
+    }
+
+    private Flowable<TpFeedItem> fetchTpFeedItem(String mediaId) {
+        return tpFeedService.tpFeedItems(mediaId)
+                .doOnNext(tpFeedItem -> {
+                    if (tpFeedItem.getEntries().isEmpty()) {
+                        throw new RuntimeException("Entries were empty");
+                    }
+                })
+                .doOnError(error -> Log.d(TAG, "Error getting tpFeedItem using: " + mediaId, error))
+                .onErrorResumeNext(Flowable.empty());
+    }
+
+    private Flowable<ThePlatformItem> fetchThePlatformItem(String smilUrlId) {
+        return thePlatformService.thePlatformItems(smilUrlId)
+                .doOnError(error -> Log.d(TAG, "Error getting thePlatformItem using: " + smilUrlId, error))
+                .onErrorResumeNext(Flowable.empty());
     }
 
     public Completable nukeDatabase() {

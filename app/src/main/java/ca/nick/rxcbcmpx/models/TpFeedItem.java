@@ -9,7 +9,7 @@ import java.util.List;
 public class TpFeedItem {
 
     private final List<Entry> entries;
-    private PolopolyItem polopolyItem;
+    private LineupItem lineupItem;
 
     public TpFeedItem(List<Entry> entries) {
         this.entries = entries;
@@ -38,20 +38,20 @@ public class TpFeedItem {
                 .mediaContents.get(0);
     }
 
-    public TpFeedItem setPolopolyItem(PolopolyItem polopolyItem) {
-        this.polopolyItem = polopolyItem;
+    public TpFeedItem setLineupItem(LineupItem lineupItem) {
+        this.lineupItem = lineupItem;
         return this;
     }
 
-    public PolopolyItem getPolopolyItem() {
-        return polopolyItem;
+    public LineupItem getLineupItem() {
+        return lineupItem;
     }
 
     @Override
     public String toString() {
         return "TpFeedItem{" +
                 "entries=" + entries +
-                ", polopolyItem=" + polopolyItem +
+                ", lineupItem=" + lineupItem +
                 '}';
     }
 

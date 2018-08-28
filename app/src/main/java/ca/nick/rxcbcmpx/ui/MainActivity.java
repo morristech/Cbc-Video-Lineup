@@ -6,13 +6,8 @@ import android.support.v7.widget.Toolbar;
 import ca.nick.rxcbcmpx.R;
 import dagger.android.support.DaggerAppCompatActivity;
 
-// TODO: Full screen: https://geoffledak.com/blog/2017/09/11/how-to-add-a-fullscreen-toggle-button-to-exoplayer-in-android/
-// TODO: Add material horizontal progressbar on bottom of screen. Use another LiveData<State> for this
-// TODO: Add swiperefreshlayout
 // TODO: Handle subtitles
-// TODO: Handle MPX content directly from aggregate api, not just polopoly
 // TODO: Fix last video not playing
-// TODO: Add better FAB scrolling behaviour
 // TODO: Lazily load videos so there's always a fresh token for the smil file
 public class MainActivity extends DaggerAppCompatActivity
         implements VideoLineupFragment.ToolbarSetterUpperCallback {

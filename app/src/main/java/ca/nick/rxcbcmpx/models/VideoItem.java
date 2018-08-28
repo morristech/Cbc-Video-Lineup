@@ -16,7 +16,7 @@ public class VideoItem {
 
     @PrimaryKey
     private final long guid;
-    private final String polopolyId;
+    private final String sourceId;
     private final String src;
     private final String title;
     private final String description;
@@ -29,7 +29,7 @@ public class VideoItem {
     private final long insertionTimestamp;
 
     public VideoItem(long guid,
-                     String polopolyId,
+                     String sourceId,
                      String src,
                      String title,
                      String description,
@@ -40,7 +40,7 @@ public class VideoItem {
                      @Nullable String captionsUrl,
                      long insertionTimestamp) {
         this.guid = guid;
-        this.polopolyId = polopolyId;
+        this.sourceId = sourceId;
         this.src = src;
         this.title = title;
         this.description = description;
@@ -54,19 +54,18 @@ public class VideoItem {
 
     public static VideoItem fromRemoteData(ThePlatformItem thePlatformItem) {
         TpFeedItem tpFeedItem = thePlatformItem.getTpFeedItem();
-        PolopolyItem polopolyItem = tpFeedItem.getPolopolyItem();
-        LineupItem lineupItem = polopolyItem.getLineupItem();
+        LineupItem lineupItem = tpFeedItem.getLineupItem();
 
         return new VideoItem(
                 thePlatformItem.getGuid(),
-                polopolyItem.getId(),
+                lineupItem.getSourceId(),
                 thePlatformItem.getUrl(),
                 lineupItem.getTitle(),
                 lineupItem.getDescription(),
                 tpFeedItem.getDuration(),
-                polopolyItem.getPubdate(),
+                lineupItem.getReadablePublishedAt(),
                 tpFeedItem.getLive(),
-                polopolyItem.getImageUrl(),
+                lineupItem.getImageLarge(),
                 thePlatformItem.getCaptions(),
                 System.currentTimeMillis());
     }
@@ -83,8 +82,8 @@ public class VideoItem {
         return Uri.parse(src);
     }
 
-    public String getPolopolyId() {
-        return polopolyId;
+    public String getSourceId() {
+        return sourceId;
     }
 
     public String getTitle() {
@@ -126,7 +125,7 @@ public class VideoItem {
         if (object == null || getClass() != object.getClass()) return false;
         VideoItem videoItem = (VideoItem) object;
         return guid == videoItem.guid &&
-                Objects.equals(polopolyId, videoItem.polopolyId) &&
+                Objects.equals(sourceId, videoItem.sourceId) &&
                 Objects.equals(src, videoItem.src) &&
                 Objects.equals(title, videoItem.title) &&
                 Objects.equals(description, videoItem.description) &&
@@ -136,6 +135,6 @@ public class VideoItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(guid, polopolyId, src, title, description, publishedDate, live);
+        return Objects.hash(guid, sourceId, src, title, description, publishedDate, live);
     }
 }

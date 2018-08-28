@@ -11,7 +11,6 @@ public class PolopolyItem {
     private final String mediaid;
     private final String pubdate;
     private final Image image;
-    private LineupItem lineupItem;
 
     public PolopolyItem(String id,
                         String title,
@@ -69,15 +68,6 @@ public class PolopolyItem {
         return mediaid;
     }
 
-    public PolopolyItem setLineupItem(LineupItem lineupItem) {
-        this.lineupItem = lineupItem;
-        return this;
-    }
-
-    public LineupItem getLineupItem() {
-        return lineupItem;
-    }
-
     @Override
     public String toString() {
         return "PolopolyItem{" +
@@ -90,7 +80,6 @@ public class PolopolyItem {
                 ", mediaid='" + mediaid + '\'' +
                 ", pubdate='" + pubdate + '\'' +
                 ", image=" + image +
-                ", lineupItem=" + lineupItem +
                 '}';
     }
 
