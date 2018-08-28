@@ -38,6 +38,8 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
     @Nullable
     private OnErrorListener onErrorListener;
     private PlayingPositionListener listener;
+    @Nullable
+    private VideoItem videoItem;
 
     private TextView title;
     private PlayerView playerView;
@@ -66,6 +68,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
     }
 
     public void bind(VideoItem videoItem) {
+        this.videoItem = videoItem;
         mediaUri = videoItem.getSrcUri();
         title.setText(videoItem.getTitle());
 
@@ -193,11 +196,20 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
                 if (isFullScreen()) {
                     closeFullScreenDialog(activityContext);
                 } else {
-                    initFullScreenDialog(activityContext);
                     openFullScreenDialog(activityContext);
                 }
                 break;
         }
+    }
+
+    private void openFullScreenDialog(Context activityContext) {
+        initFullScreenDialog(activityContext);
+
+        ((ViewGroup) playerView.getParent()).removeView(playerView);
+        fullScreenDialog.addContentView(playerView,
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        fullScreenDialog.show();
+        iconFullScreen.setImageDrawable(ContextCompat.getDrawable(activityContext, R.drawable.ic_fullscreen_exit));
     }
 
     private void initFullScreenDialog(Context activityContext) {
@@ -208,14 +220,6 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
                 super.onBackPressed();
             }
         };
-    }
-
-    private void openFullScreenDialog(Context activityContext) {
-        ((ViewGroup) playerView.getParent()).removeView(playerView);
-        fullScreenDialog.addContentView(playerView,
-                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        fullScreenDialog.show();
-        iconFullScreen.setImageDrawable(ContextCompat.getDrawable(activityContext, R.drawable.ic_fullscreen_exit));
     }
 
     private void closeFullScreenDialog(Context activityContext) {

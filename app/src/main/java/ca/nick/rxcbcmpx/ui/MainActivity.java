@@ -12,7 +12,7 @@ import dagger.android.support.DaggerAppCompatActivity;
 // TODO: Handle subtitles
 // TODO: Handle MPX content directly from aggregate api, not just polopoly
 // TODO: Fix last video not playing
-// TODO: Change visible to less than 0.65?
+// TODO: Add better FAB scrolling behaviour
 public class MainActivity extends DaggerAppCompatActivity
         implements VideoLineupFragment.ToolbarSetterUpperCallback {
 
