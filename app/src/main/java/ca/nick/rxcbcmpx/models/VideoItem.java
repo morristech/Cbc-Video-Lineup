@@ -18,6 +18,7 @@ public class VideoItem {
     private final long guid;
     private final String sourceId;
     private final String src;
+    private final String smilUrl;
     private final String title;
     private final String description;
     private final double duration;
@@ -31,6 +32,7 @@ public class VideoItem {
     public VideoItem(long guid,
                      String sourceId,
                      String src,
+                     String smilUrl,
                      String title,
                      String description,
                      double duration,
@@ -42,6 +44,7 @@ public class VideoItem {
         this.guid = guid;
         this.sourceId = sourceId;
         this.src = src;
+        this.smilUrl = smilUrl;
         this.title = title;
         this.description = description;
         this.duration = duration;
@@ -60,6 +63,7 @@ public class VideoItem {
                 thePlatformItem.getGuid(),
                 lineupItem.getSourceId(),
                 thePlatformItem.getUrl(),
+                tpFeedItem.getSmilUrl(),
                 lineupItem.getTitle(),
                 lineupItem.getDescription(),
                 tpFeedItem.getDuration(),
@@ -110,6 +114,10 @@ public class VideoItem {
         return live;
     }
 
+    public String getSmilUrl() {
+        return smilUrl;
+    }
+
     @Nullable
     public String getCaptionsUrl() {
         return captionsUrl;
@@ -126,7 +134,7 @@ public class VideoItem {
         VideoItem videoItem = (VideoItem) object;
         return guid == videoItem.guid &&
                 Objects.equals(sourceId, videoItem.sourceId) &&
-                Objects.equals(src, videoItem.src) &&
+                Objects.equals(smilUrl, videoItem.smilUrl) &&
                 Objects.equals(title, videoItem.title) &&
                 Objects.equals(description, videoItem.description) &&
                 Objects.equals(publishedDate, videoItem.publishedDate) &&
@@ -135,6 +143,6 @@ public class VideoItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(guid, sourceId, src, title, description, publishedDate, live);
+        return Objects.hash(guid, sourceId, smilUrl, title, description, publishedDate, live);
     }
 }

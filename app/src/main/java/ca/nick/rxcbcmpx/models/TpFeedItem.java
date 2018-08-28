@@ -19,8 +19,12 @@ public class TpFeedItem {
         return entries;
     }
 
+    public String getSmilUrl() {
+        return findMediaContent().url;
+    }
+
     public String getSmilUrlId() {
-        return Uri.parse(findMediaContent().url)
+        return Uri.parse(getSmilUrl())
                 .getLastPathSegment();
     }
 
