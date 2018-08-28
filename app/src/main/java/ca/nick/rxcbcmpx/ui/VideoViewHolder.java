@@ -1,10 +1,15 @@
 package ca.nick.rxcbcmpx.ui;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -22,7 +27,7 @@ import im.ene.toro.media.PlaybackInfo;
 import im.ene.toro.widget.Container;
 
 public class VideoViewHolder extends RecyclerView.ViewHolder
-        implements ToroPlayer {
+        implements ToroPlayer, View.OnClickListener {
 
     @Nullable
     private ExoPlayerViewHelper helper;
@@ -38,6 +43,10 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
     private PlayerView playerView;
     private ImageView previewImage;
     private ProgressBar progressBar;
+    @Nullable
+    private Dialog fullScreenDialog;
+    private FrameLayout toggleFullScreen;
+    private ImageView iconFullScreen;
 
     public interface PlayingPositionListener {
         void onPositionPlaying(int adapterPosition);
@@ -49,6 +58,9 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
         title = itemView.findViewById(R.id.title);
         previewImage = itemView.findViewById(R.id.preview_image);
         progressBar = itemView.findViewById(R.id.preview_progress_bar);
+        toggleFullScreen = playerView.findViewById(R.id.toggleFullScreen);
+        toggleFullScreen.setOnClickListener(this);
+        iconFullScreen = playerView.findViewById(R.id.iconFullScreen);
 
         this.listener = listener;
     }
@@ -171,5 +183,50 @@ public class VideoViewHolder extends RecyclerView.ViewHolder
 
     private void showProgressBar() {
         progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.toggleFullScreen:
+                Context activityContext = v.getContext();
+                if (isFullScreen()) {
+                    closeFullScreenDialog(activityContext);
+                } else {
+                    initFullScreenDialog(activityContext);
+                    openFullScreenDialog(activityContext);
+                }
+                break;
+        }
+    }
+
+    private void initFullScreenDialog(Context activityContext) {
+        fullScreenDialog = new Dialog(activityContext, android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
+            @Override
+            public void onBackPressed() {
+                closeFullScreenDialog(activityContext);
+                super.onBackPressed();
+            }
+        };
+    }
+
+    private void openFullScreenDialog(Context activityContext) {
+        ((ViewGroup) playerView.getParent()).removeView(playerView);
+        fullScreenDialog.addContentView(playerView,
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        fullScreenDialog.show();
+        iconFullScreen.setImageDrawable(ContextCompat.getDrawable(activityContext, R.drawable.ic_fullscreen_exit));
+    }
+
+    private void closeFullScreenDialog(Context activityContext) {
+        ((ViewGroup) playerView.getParent()).removeView(playerView);
+        ((FrameLayout) itemView.findViewById(R.id.player_container)).addView(playerView);
+        iconFullScreen.setImageDrawable(ContextCompat.getDrawable(activityContext, R.drawable.ic_fullscreen));
+        fullScreenDialog.dismiss();
+        fullScreenDialog = null;
+    }
+
+    private boolean isFullScreen() {
+        return fullScreenDialog != null;
     }
 }

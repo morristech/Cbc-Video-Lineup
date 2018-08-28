@@ -100,6 +100,7 @@ public class VideoLineupFragment extends DaggerFragment {
         if (params instanceof CoordinatorLayout.LayoutParams) {
             CoordinatorLayout.Behavior temp = ((CoordinatorLayout.LayoutParams) params).getBehavior();
             if (temp != null) {
+                container.setBehaviorCallback(() -> container.onScrollStateChanged(RecyclerView.SCROLL_STATE_IDLE));
                 ((CoordinatorLayout.LayoutParams) params).setBehavior(new Container.Behavior(temp));
             }
         }
@@ -128,9 +129,11 @@ public class VideoLineupFragment extends DaggerFragment {
         switch (state.getStatus()) {
             case LOADING:
                 setLoading(true);
+                clearError();
                 break;
             case SUCCESS:
                 setLoading(false);
+                clearError();
                 break;
             case ERROR:
                 setLoading(false);
@@ -144,6 +147,10 @@ public class VideoLineupFragment extends DaggerFragment {
 
     private void setLoading(boolean isLoading) {
         progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+    }
+
+    private void clearError() {
+        setError(null);
     }
 
     private void setError(@Nullable Throwable throwable) {
