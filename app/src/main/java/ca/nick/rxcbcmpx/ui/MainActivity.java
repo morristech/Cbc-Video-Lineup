@@ -13,6 +13,7 @@ import dagger.android.support.DaggerAppCompatActivity;
 // TODO: Handle MPX content directly from aggregate api, not just polopoly
 // TODO: Fix last video not playing
 // TODO: Add better FAB scrolling behaviour
+// TODO: Lazily load videos so there's always a fresh token for the smil file
 public class MainActivity extends DaggerAppCompatActivity
         implements VideoLineupFragment.ToolbarSetterUpperCallback {
 

@@ -1,5 +1,7 @@
 package ca.nick.rxcbcmpx.models;
 
+import android.net.Uri;
+
 public class LineupItem {
 
     private final String id;
@@ -12,6 +14,9 @@ public class LineupItem {
     private final long updatedAt;
     private final String readableUpdatedAt;
     private final TypeAttributes typeAttributes;
+
+    private static final String MPX_SOURCE = "mpx";
+    private static final String POLOPOLY_SOURCE = "Polopoly";
 
     public LineupItem(String id, String title,
                       String description,
@@ -75,11 +80,20 @@ public class LineupItem {
     }
 
     public boolean isPolopolySource() {
-        return "polopoly".equalsIgnoreCase(source);
+        return POLOPOLY_SOURCE.equals(source);
     }
 
     public boolean isMpxSource() {
-        return "mpx".equalsIgnoreCase(source);
+        return MPX_SOURCE.equals(source);
+    }
+
+    public String getMpxSourceGuid() {
+        if (!isMpxSource()) {
+            throw new RuntimeException("Trying to get MPX Source GUID when source was not MPX");
+        }
+
+        Uri uri = Uri.parse(sourceId);
+        return uri.getLastPathSegment();
     }
 
     @Override
