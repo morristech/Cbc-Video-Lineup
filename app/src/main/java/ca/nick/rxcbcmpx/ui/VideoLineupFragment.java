@@ -113,7 +113,7 @@ public class VideoLineupFragment extends DaggerFragment {
         callback.setToolbar(toolbar);
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(VideoViewModel.class);
         viewModel.getLocalVideoItems().observe(this, this::renderVideoItems);
-        viewModel.getState().observe(this, this::monitorState);
+        viewModel.getState().observe(this, this::reactToState);
         viewModel.loadVideos();
     }
 
@@ -125,7 +125,7 @@ public class VideoLineupFragment extends DaggerFragment {
         adapter.submitList(videoItems);
     }
 
-    private void monitorState(Resource<Void> state) {
+    private void reactToState(Resource<Void> state) {
         switch (state.getStatus()) {
             case LOADING:
                 setLoading(true);
