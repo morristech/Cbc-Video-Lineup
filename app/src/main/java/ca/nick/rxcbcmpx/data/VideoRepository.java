@@ -104,8 +104,4 @@ public class VideoRepository {
     public Completable insertLocally(VideoItem videoItem) {
         return Completable.fromAction(() -> cbcDatabase.videoDao().insertVideoItem(videoItem));
     }
-
-    public Completable deleteLocally(VideoItem videoItem) {
-        return Completable.fromAction(() -> cbcDatabase.videoDao().deleteVideoItem(videoItem));
-    }
 }

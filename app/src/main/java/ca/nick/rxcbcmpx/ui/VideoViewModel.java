@@ -47,18 +47,6 @@ public class VideoViewModel extends ViewModel {
                 .subscribe(createStateManager());
     }
 
-    public void nuke() {
-        videoRepository.nukeDatabase()
-                .compose(RxExtensions.applySchedulers())
-                .subscribe(createStateManager());
-    }
-
-    public void delete(VideoItem videoItem) {
-        videoRepository.deleteLocally(videoItem)
-                .compose(RxExtensions.applySchedulers())
-                .subscribe(createStateManager());
-    }
-
     @Override
     protected void onCleared() {
         super.onCleared();
