@@ -65,14 +65,13 @@ public class VideoRepository {
 
                     if (lineupItem.isPolopolySource()) {
                         tpFeedItemFlowable = fetchPolopolyItem(lineupItem.getSourceId())
-                                .flatMap(item -> fetchTpFeedItem(item.getMediaid()));
+                                .flatMap(polopolyItem -> fetchTpFeedItem(polopolyItem.getMediaid()));
                     } else {
                         tpFeedItemFlowable = fetchTpFeedItem(lineupItem.getMpxSourceGuid());
-
                     }
 
                     return tpFeedItemFlowable
-                            .doOnNext(item -> item.setLineupItem(lineupItem));
+                            .doOnNext(tpFeedItem -> tpFeedItem.setLineupItem(lineupItem));
                 })
                 .flatMap(tpFeedItem -> fetchThePlatformItem(tpFeedItem.getSmilUrlId())
                         .doOnNext(thePlatformItem -> thePlatformItem.setTpFeedItem(tpFeedItem)))
@@ -87,11 +86,7 @@ public class VideoRepository {
 
     private Flowable<TpFeedItem> fetchTpFeedItem(String mediaId) {
         return tpFeedService.tpFeedItems(mediaId)
-                .doOnNext(tpFeedItem -> {
-                    if (tpFeedItem.getEntries().isEmpty()) {
-                        throw new RuntimeException("Entries were empty");
-                    }
-                })
+                .filter(tpFeedItem -> !tpFeedItem.getEntries().isEmpty())
                 .doOnError(error -> Log.d(TAG, "Error getting tpFeedItem using: " + mediaId, error))
                 .onErrorResumeNext(Flowable.empty());
     }
