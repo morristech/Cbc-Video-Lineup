@@ -32,7 +32,7 @@ public class Resource<T> {
         return new Resource<>(Status.LOADING, null, null);
     }
 
-    public static <T> Resource<T> success(T data) {
+    public static <T> Resource<T> success(@Nullable T data) {
         return new Resource<>(Status.SUCCESS, data, null);
     }
 
