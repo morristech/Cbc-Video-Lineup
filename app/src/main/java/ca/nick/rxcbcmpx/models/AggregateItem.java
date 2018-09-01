@@ -2,7 +2,7 @@ package ca.nick.rxcbcmpx.models;
 
 import android.net.Uri;
 
-public class LineupItem {
+public class AggregateItem {
 
     private final String id;
     private final String title;
@@ -18,15 +18,15 @@ public class LineupItem {
     private static final String MPX_SOURCE = "mpx";
     private static final String POLOPOLY_SOURCE = "Polopoly";
 
-    public LineupItem(String id, String title,
-                      String description,
-                      String source,
-                      String sourceId,
-                      long publishedAt,
-                      String readablePublishedAt,
-                      long updatedAt,
-                      String readableUpdatedAt,
-                      TypeAttributes typeAttributes) {
+    public AggregateItem(String id, String title,
+                         String description,
+                         String source,
+                         String sourceId,
+                         long publishedAt,
+                         String readablePublishedAt,
+                         long updatedAt,
+                         String readableUpdatedAt,
+                         TypeAttributes typeAttributes) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -102,7 +102,7 @@ public class LineupItem {
 
     @Override
     public String toString() {
-        return "LineupItem{" +
+        return "AggregateItem{" +
                 "id='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +

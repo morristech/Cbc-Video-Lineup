@@ -2,7 +2,7 @@ package ca.nick.rxcbcmpx.networking;
 
 import java.util.List;
 
-import ca.nick.rxcbcmpx.models.LineupItem;
+import ca.nick.rxcbcmpx.models.AggregateItem;
 import ca.nick.rxcbcmpx.utils.Constants;
 import io.reactivex.Flowable;
 import retrofit2.http.GET;
@@ -14,5 +14,5 @@ public interface AggregateApiService {
 
     @Headers(Constants.USER_AGENT)
     @GET("items?orderLineupId=2.4941&type=video&pageSize=40")
-    Flowable<List<LineupItem>> topStoriesVideos();
+    Flowable<List<AggregateItem>> topStoriesVideos();
 }

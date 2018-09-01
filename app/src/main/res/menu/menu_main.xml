@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/goToAdsCcVideo"
+        android:icon="@drawable/ic_closed_caption"
+        android:title="@string/open_ads_cc_fragment"
+        app:showAsAction="ifRoom" />
+
     <item android:id="@+id/downloadVideos"
         android:icon="@drawable/ic_refresh"
         android:title="@string/refresh"

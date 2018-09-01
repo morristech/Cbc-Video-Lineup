@@ -13,5 +13,5 @@ public interface PolopolyService {
 
     @Headers(Constants.USER_AGENT)
     @GET("{sourceId}")
-    Flowable<PolopolyItem> stories(@Path("sourceId") String sourceId);
+    Flowable<PolopolyItem> story(@Path("sourceId") String sourceId);
 }

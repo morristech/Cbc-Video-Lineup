@@ -6,10 +6,12 @@ import com.squareup.moshi.Json;
 
 import java.util.List;
 
+import ca.nick.rxcbcmpx.utils.Constants;
+
 public class TpFeedItem {
 
     private final List<Entry> entries;
-    private LineupItem lineupItem;
+    private AggregateItem aggregateItem;
 
     public TpFeedItem(List<Entry> entries) {
         this.entries = entries;
@@ -37,25 +39,29 @@ public class TpFeedItem {
                 .liveOnDemand;
     }
 
+    public boolean isLive() {
+        return Constants.LIVE_STATE.equalsIgnoreCase(getLive());
+    }
+
     private Entry.MediaContent findMediaContent() {
         return entries.get(0)
                 .mediaContents.get(0);
     }
 
-    public TpFeedItem setLineupItem(LineupItem lineupItem) {
-        this.lineupItem = lineupItem;
+    public TpFeedItem setAggregateItem(AggregateItem aggregateItem) {
+        this.aggregateItem = aggregateItem;
         return this;
     }
 
-    public LineupItem getLineupItem() {
-        return lineupItem;
+    public AggregateItem getAggregateItem() {
+        return aggregateItem;
     }
 
     @Override
     public String toString() {
         return "TpFeedItem{" +
                 "entries=" + entries +
-                ", lineupItem=" + lineupItem +
+                ", aggregateItem=" + aggregateItem +
                 '}';
     }
 

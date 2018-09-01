@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 
 import java.util.Objects;
 
+import ca.nick.rxcbcmpx.utils.Constants;
+
 import static ca.nick.rxcbcmpx.models.VideoItem.TABLE_NAME;
 
 @Entity(tableName = TABLE_NAME)
@@ -57,20 +59,20 @@ public class VideoItem {
 
     public static VideoItem fromRemoteData(ThePlatformItem thePlatformItem) {
         TpFeedItem tpFeedItem = thePlatformItem.getTpFeedItem();
-        LineupItem lineupItem = tpFeedItem.getLineupItem();
+        AggregateItem aggregateItem = tpFeedItem.getAggregateItem();
 
         return new VideoItem(
                 thePlatformItem.getGuid(),
-                lineupItem.getSourceId(),
+                aggregateItem.getSourceId(),
                 thePlatformItem.getUrl(),
                 tpFeedItem.getSmilUrl(),
-                lineupItem.getTitle(),
-                lineupItem.getDescription(),
+                aggregateItem.getTitle(),
+                aggregateItem.getDescription(),
                 tpFeedItem.getDuration(),
-                lineupItem.getReadablePublishedAt(),
+                aggregateItem.getReadablePublishedAt(),
                 tpFeedItem.getLive(),
-                lineupItem.getImageLarge(),
-                thePlatformItem.getCaptions(),
+                aggregateItem.getImageLarge(),
+                thePlatformItem.getSrtCaptions(),
                 System.currentTimeMillis());
     }
 
@@ -125,6 +127,10 @@ public class VideoItem {
 
     public long getInsertionTimestamp() {
         return insertionTimestamp;
+    }
+
+    public boolean isLive() {
+        return Constants.LIVE_STATE.equalsIgnoreCase(live);
     }
 
     @Override

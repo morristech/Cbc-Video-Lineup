@@ -43,7 +43,7 @@ public class VideoViewModel extends ViewModel {
     public void loadVideos() {
         clearRequestsInFlight();
         videoRepository.nukeThenfetchThenPersistVideos()
-                .compose(RxExtensions.applySchedulers())
+                .compose(RxExtensions.applySchedulersCompletable())
                 .subscribe(createStateManager());
     }
 

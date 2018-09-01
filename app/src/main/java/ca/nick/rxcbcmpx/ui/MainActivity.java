@@ -3,6 +3,8 @@ package ca.nick.rxcbcmpx.ui;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
+import javax.inject.Inject;
+
 import ca.nick.rxcbcmpx.R;
 import dagger.android.support.DaggerAppCompatActivity;
 
@@ -12,16 +14,16 @@ import dagger.android.support.DaggerAppCompatActivity;
 public class MainActivity extends DaggerAppCompatActivity
         implements VideoLineupFragment.ToolbarSetterUpperCallback {
 
+    @Inject
+    NavigationController navigationController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.container, VideoLineupFragment.create(), VideoLineupFragment.TAG)
-                    .commit();
+            navigationController.navigateToVideoLineupFragment();
         }
     }
 

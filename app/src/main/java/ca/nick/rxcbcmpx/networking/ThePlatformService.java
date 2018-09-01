@@ -13,5 +13,5 @@ public interface ThePlatformService {
 
     @Headers(Constants.USER_AGENT)
     @GET("{smilUrlId}?manifest=m3u&feed=iOS%20News%20app%20feed&mbr=true&format=smil")
-    Flowable<ThePlatformItem> thePlatformItems(@Path("smilUrlId") String smilUrlId);
+    Flowable<ThePlatformItem> thePlatformItem(@Path("smilUrlId") String smilUrlId);
 }

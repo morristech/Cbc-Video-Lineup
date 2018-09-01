@@ -60,18 +60,18 @@ public class VideoRepository {
         return aggregateApiService.topStoriesVideos()
                 .retry(NUM_RETRY_ATTEMPTS)
                 .flatMap(Flowable::fromIterable)
-                .flatMap(lineupItem -> {
+                .flatMap(aggregateItem -> {
                     Flowable<TpFeedItem> tpFeedItemFlowable;
 
-                    if (lineupItem.isPolopolySource()) {
-                        tpFeedItemFlowable = fetchPolopolyItem(lineupItem.getSourceId())
-                                .flatMap(polopolyItem -> fetchTpFeedItem(polopolyItem.getMediaid()));
+                    if (aggregateItem.isPolopolySource()) {
+                        tpFeedItemFlowable = fetchPolopolyItem(aggregateItem.getSourceId())
+                                .flatMap(polopolyItem -> fetchTpFeedItemByGuid(polopolyItem.getMediaid()));
                     } else {
-                        tpFeedItemFlowable = fetchTpFeedItem(lineupItem.getMpxSourceGuid());
+                        tpFeedItemFlowable = fetchTpFeedItemByGuid(aggregateItem.getMpxSourceGuid());
                     }
 
                     return tpFeedItemFlowable
-                            .doOnNext(tpFeedItem -> tpFeedItem.setLineupItem(lineupItem));
+                            .doOnNext(tpFeedItem -> tpFeedItem.setAggregateItem(aggregateItem));
                 })
                 .flatMap(tpFeedItem -> fetchThePlatformItem(tpFeedItem.getSmilUrlId())
                         .doOnNext(thePlatformItem -> thePlatformItem.setTpFeedItem(tpFeedItem)))
@@ -79,20 +79,20 @@ public class VideoRepository {
     }
 
     private Flowable<PolopolyItem> fetchPolopolyItem(String sourceId) {
-        return polopolyService.stories(sourceId)
+        return polopolyService.story(sourceId)
                 .doOnError(error -> Log.d(TAG, "Error getting polopolyItem using: " + sourceId, error))
                 .onErrorResumeNext(Flowable.empty());
     }
 
-    private Flowable<TpFeedItem> fetchTpFeedItem(String mediaId) {
-        return tpFeedService.tpFeedItems(mediaId)
-                .filter(tpFeedItem -> !tpFeedItem.getEntries().isEmpty())
+    private Flowable<TpFeedItem> fetchTpFeedItemByGuid(String mediaId) {
+        return tpFeedService.byGuid(mediaId)
+                .filter(tpFeedItem -> !tpFeedItem.getEntries().isEmpty() && !tpFeedItem.isLive())
                 .doOnError(error -> Log.d(TAG, "Error getting tpFeedItem using: " + mediaId, error))
                 .onErrorResumeNext(Flowable.empty());
     }
 
     private Flowable<ThePlatformItem> fetchThePlatformItem(String smilUrlId) {
-        return thePlatformService.thePlatformItems(smilUrlId)
+        return thePlatformService.thePlatformItem(smilUrlId)
                 .doOnError(error -> Log.d(TAG, "Error getting thePlatformItem using: " + smilUrlId, error))
                 .onErrorResumeNext(Flowable.empty());
     }
@@ -103,5 +103,10 @@ public class VideoRepository {
 
     public Completable insertLocally(VideoItem videoItem) {
         return Completable.fromAction(() -> cbcDatabase.videoDao().insertVideoItem(videoItem));
+    }
+
+    public Flowable<ThePlatformItem> fetchLatestNatlEpisode() {
+        return tpFeedService.latestNatlEpisode()
+                .flatMap(tpFeedItem -> fetchThePlatformItem(tpFeedItem.getSmilUrlId()));
     }
 }

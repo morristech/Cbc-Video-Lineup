@@ -2,14 +2,15 @@ package ca.nick.rxcbcmpx.models;
 
 import android.support.annotation.Nullable;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
+import com.tickaroo.tikxml.annotation.Attribute;
+import com.tickaroo.tikxml.annotation.Element;
+import com.tickaroo.tikxml.annotation.Xml;
 
 import java.util.List;
 
-@Root(name = "smil", strict = false)
+import ca.nick.rxcbcmpx.utils.Constants;
+
+@Xml(name = "smil")
 public class ThePlatformItem {
 
     @Element
@@ -18,21 +19,20 @@ public class ThePlatformItem {
     private Body body;
     private TpFeedItem tpFeedItem;
 
-    public ThePlatformItem() {
-        this(null, null);
-    }
-
-    public ThePlatformItem(Head head, Body body) {
-        this.head = head;
-        this.body = body;
-    }
-
     public Head getHead() {
         return head;
     }
 
+    public void setHead(Head head) {
+        this.head = head;
+    }
+
     public Body getBody() {
         return body;
+    }
+
+    public void setBody(Body body) {
+        this.body = body;
     }
 
     public long getGuid() {
@@ -44,14 +44,16 @@ public class ThePlatformItem {
     }
 
     @Nullable
-    public String getCaptions() {
+    public String getSrtCaptions() {
         Body.Seq.Par par = body.seq.pars != null
                 ? body.seq.pars.get(0)
                 : null;
 
         if (par != null && par.textStreams != null) {
             for (Body.Seq.Par.TextStream textStream : par.textStreams) {
-                if (textStream.src != null) {
+                if (textStream.src != null
+                        && textStream.type != null
+                        && Constants.SRT_CAPTIONS.equals(textStream.type)) {
                     return textStream.src;
                 }
             }
@@ -75,397 +77,360 @@ public class ThePlatformItem {
         return tpFeedItem;
     }
 
-    @Override
-    public String toString() {
-        return "ThePlatformItem{" +
-                "head=" + head +
-                ", body=" + body +
-                ", tpFeedItem=" + tpFeedItem +
-                '}';
-    }
-
+    @Xml
     public static class Head {
 
-        @Element(required = false)
+        @Element
         private Meta meta;
-
-        public Head() {
-            this(null);
-        }
-
-        public Head(Meta meta) {
-            this.meta = meta;
-        }
 
         public Meta getMeta() {
             return meta;
         }
 
-        @Override
-        public String toString() {
-            return "Head{" +
-                    "meta=" + meta +
-                    '}';
+        public void setMeta(Meta meta) {
+            this.meta = meta;
         }
 
+        @Xml
         public static class Meta {
+
             @Attribute
             private String name;
             @Attribute
             private String content;
 
-            public Meta() {
-                this(null, null);
-            }
-
-            public Meta(String name, String content) {
-                this.name = name;
-                this.content = content;
-            }
-
             public String getName() {
                 return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
             }
 
             public String getContent() {
                 return content;
             }
 
-            @Override
-            public String toString() {
-                return "Meta{" +
-                        "name='" + name + '\'' +
-                        ", content='" + content + '\'' +
-                        '}';
+            public void setContent(String content) {
+                this.content = content;
             }
         }
     }
 
+    @Xml
     public static class Body {
+
         @Element
         private Seq seq;
-
-        public Body() {
-            this(null);
-        }
-
-        public Body(Seq seq) {
-            this.seq = seq;
-        }
 
         public Seq getSeq() {
             return seq;
         }
 
-        @Override
-        public String toString() {
-            return "Body{" +
-                    "seq=" + seq +
-                    '}';
+        public void setSeq(Seq seq) {
+            this.seq = seq;
         }
 
+        @Xml
         public static class Seq {
-            @Element(required = false)
+
+            @Element
             private Video video;
-            @ElementList(inline = true, required = false)
+            @Element
             private List<Par> pars;
-
-            public Seq() {
-                this(null, null);
-            }
-
-            public Seq(Video video, List<Par> pars) {
-                this.video = video;
-                this.pars = pars;
-            }
 
             public Video getVideo() {
                 return video;
+            }
+
+            public void setVideo(Video video) {
+                this.video = video;
             }
 
             public List<Par> getPars() {
                 return pars;
             }
 
-            @Override
-            public String toString() {
-                return "Seq{" +
-                        "video=" + video +
-                        ", pars=" + pars +
-                        '}';
+            public void setPars(List<Par> pars) {
+                this.pars = pars;
             }
 
-            @Root(strict = false)
+            @Xml
             public static class Par {
 
                 @Element
                 private Video video;
-                @ElementList(inline = true, required = false)
+                @Element
                 private List<TextStream> textStreams;
-
-                public Par() {
-                    this(null, null);
-                }
-
-                public Par(Video video, List<TextStream> textStreams) {
-                    this.video = video;
-                    this.textStreams = textStreams;
-                }
 
                 public Video getVideo() {
                     return video;
+                }
+
+                public void setVideo(Video video) {
+                    this.video = video;
                 }
 
                 public List<TextStream> getTextStreams() {
                     return textStreams;
                 }
 
-                @Override
-                public String toString() {
-                    return "Par{" +
-                            "video=" + video +
-                            ", textStreams=" + textStreams +
-                            '}';
+                public void setTextStreams(List<TextStream> textStreams) {
+                    this.textStreams = textStreams;
                 }
 
-                @Root(strict = false)
+                @Xml(name = "textstream")
                 public static class TextStream {
+
                     @Attribute
                     private String src;
-                    @Attribute(required = false)
+                    @Attribute
                     private String type;
-                    @Attribute(required = false)
+                    @Attribute
                     private boolean closedCaptions;
-                    @Attribute(required = false)
+                    @Attribute
                     private String lang;
 
-                    public TextStream() {
-                        this(null, null, false, null);
+                    public String getSrc() {
+                        return src;
                     }
 
-                    public TextStream(String src, String type, boolean closedCaptions, String lang) {
+                    public void setSrc(String src) {
                         this.src = src;
-                        this.type = type;
-                        this.closedCaptions = closedCaptions;
-                        this.lang = lang;
                     }
 
-                    @Override
-                    public String toString() {
-                        return "TextStream{" +
-                                "src='" + src + '\'' +
-                                ", type='" + type + '\'' +
-                                ", closedCaptions=" + closedCaptions +
-                                ", lang='" + lang + '\'' +
-                                '}';
+                    public String getType() {
+                        return type;
+                    }
+
+                    public void setType(String type) {
+                        this.type = type;
+                    }
+
+                    public boolean isClosedCaptions() {
+                        return closedCaptions;
+                    }
+
+                    public void setClosedCaptions(boolean closedCaptions) {
+                        this.closedCaptions = closedCaptions;
+                    }
+
+                    public String getLang() {
+                        return lang;
+                    }
+
+                    public void setLang(String lang) {
+                        this.lang = lang;
                     }
                 }
             }
 
+            @Xml
             public static class Video {
+
                 @Attribute
                 private String src;
                 @Attribute
                 private String title;
                 @Attribute(name = "abstract")
                 private String abstract_;
-                @Attribute(required = false)
+                @Attribute
                 private String dur;
-                @Attribute(required = false)
+                @Attribute
                 private long guid;
-                @Attribute(required = false)
+                @Attribute
                 private String categories;
-                @Attribute(required = false)
+                @Attribute
                 private String author;
-                @Attribute(required = false)
+                @Attribute
                 private String copyright;
-                @Attribute(required = false)
+                @Attribute
                 private String provider;
-                @Attribute(required = false)
+                @Attribute
                 private String type;
-                @Attribute(required = false)
+                @Attribute
                 private int height;
-                @Attribute(required = false)
+                @Attribute
                 private int width;
-                @Attribute(required = false)
+                @Attribute
                 private String keywords;
-                @Attribute(required = false)
+                @Attribute
                 private String ratings;
-                @Attribute(required = false)
+                @Attribute
                 private String expression;
-                @Attribute(required = false)
+                @Attribute
                 private String clipBegin;
-                @Attribute(required = false)
+                @Attribute
                 private String clipEnd;
-                @ElementList(inline = true, required = false)
+                @Element
                 private List<Param> params;
-
-                public Video() {
-                    this(null, null, null, null, -1, null, null, null, null, null, -1, -1, null, null, null, null, null, null);
-                }
-
-                public Video(String src,
-                             String title,
-                             String abstract_,
-                             String dur,
-                             long guid,
-                             String categories,
-                             String author,
-                             String copyright,
-                             String provider,
-                             String type,
-                             int height,
-                             int width,
-                             String keywords,
-                             String ratings,
-                             String expression,
-                             String clipBegin, String clipEnd, List<Param> params) {
-                    this.src = src;
-                    this.title = title;
-                    this.abstract_ = abstract_;
-                    this.dur = dur;
-                    this.guid = guid;
-                    this.categories = categories;
-                    this.author = author;
-                    this.copyright = copyright;
-                    this.provider = provider;
-                    this.type = type;
-                    this.height = height;
-                    this.width = width;
-                    this.keywords = keywords;
-                    this.ratings = ratings;
-                    this.expression = expression;
-                    this.clipBegin = clipBegin;
-                    this.clipEnd = clipEnd;
-                    this.params = params;
-                }
 
                 public String getSrc() {
                     return src;
+                }
+
+                public void setSrc(String src) {
+                    this.src = src;
                 }
 
                 public String getTitle() {
                     return title;
                 }
 
+                public void setTitle(String title) {
+                    this.title = title;
+                }
+
                 public String getAbstract_() {
                     return abstract_;
+                }
+
+                public void setAbstract_(String abstract_) {
+                    this.abstract_ = abstract_;
                 }
 
                 public String getDur() {
                     return dur;
                 }
 
+                public void setDur(String dur) {
+                    this.dur = dur;
+                }
+
                 public long getGuid() {
                     return guid;
+                }
+
+                public void setGuid(long guid) {
+                    this.guid = guid;
                 }
 
                 public String getCategories() {
                     return categories;
                 }
 
+                public void setCategories(String categories) {
+                    this.categories = categories;
+                }
+
                 public String getAuthor() {
                     return author;
+                }
+
+                public void setAuthor(String author) {
+                    this.author = author;
                 }
 
                 public String getCopyright() {
                     return copyright;
                 }
 
+                public void setCopyright(String copyright) {
+                    this.copyright = copyright;
+                }
+
                 public String getProvider() {
                     return provider;
+                }
+
+                public void setProvider(String provider) {
+                    this.provider = provider;
                 }
 
                 public String getType() {
                     return type;
                 }
 
+                public void setType(String type) {
+                    this.type = type;
+                }
+
                 public int getHeight() {
                     return height;
+                }
+
+                public void setHeight(int height) {
+                    this.height = height;
                 }
 
                 public int getWidth() {
                     return width;
                 }
 
+                public void setWidth(int width) {
+                    this.width = width;
+                }
+
                 public String getKeywords() {
                     return keywords;
+                }
+
+                public void setKeywords(String keywords) {
+                    this.keywords = keywords;
                 }
 
                 public String getRatings() {
                     return ratings;
                 }
 
+                public void setRatings(String ratings) {
+                    this.ratings = ratings;
+                }
+
                 public String getExpression() {
                     return expression;
+                }
+
+                public void setExpression(String expression) {
+                    this.expression = expression;
                 }
 
                 public String getClipBegin() {
                     return clipBegin;
                 }
 
+                public void setClipBegin(String clipBegin) {
+                    this.clipBegin = clipBegin;
+                }
+
                 public String getClipEnd() {
                     return clipEnd;
+                }
+
+                public void setClipEnd(String clipEnd) {
+                    this.clipEnd = clipEnd;
                 }
 
                 public List<Param> getParams() {
                     return params;
                 }
 
-                @Override
-                public String toString() {
-                    return "Video{" +
-                            "src='" + src + '\'' +
-                            ", title='" + title + '\'' +
-                            ", abstract_='" + abstract_ + '\'' +
-                            ", dur='" + dur + '\'' +
-                            ", guid=" + guid +
-                            ", categories='" + categories + '\'' +
-                            ", author='" + author + '\'' +
-                            ", copyright='" + copyright + '\'' +
-                            ", provider='" + provider + '\'' +
-                            ", type='" + type + '\'' +
-                            ", height=" + height +
-                            ", width=" + width +
-                            ", keywords='" + keywords + '\'' +
-                            ", ratings='" + ratings + '\'' +
-                            ", expression='" + expression + '\'' +
-                            ", clipBegin='" + clipBegin + '\'' +
-                            ", clipEnd='" + clipEnd + '\'' +
-                            ", params=" + params +
-                            '}';
+                public void setParams(List<Param> params) {
+                    this.params = params;
                 }
 
-                @Root(strict = false)
+                @Xml
                 public static class Param {
+
                     @Attribute
                     private String name;
                     @Attribute
                     private String value;
 
-                    public Param() {
-                        this(null, null);
-                    }
-
-                    public Param(String name, String value) {
-                        this.name = name;
-                        this.value = value;
-                    }
-
                     public String getName() {
                         return name;
+                    }
+
+                    public void setName(String name) {
+                        this.name = name;
                     }
 
                     public String getValue() {
                         return value;
                     }
 
-                    @Override
-                    public String toString() {
-                        return "Param{" +
-                                "name='" + name + '\'' +
-                                ", value='" + value + '\'' +
-                                '}';
+                    public void setValue(String value) {
+                        this.value = value;
                     }
                 }
             }

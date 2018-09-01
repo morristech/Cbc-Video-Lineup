@@ -5,6 +5,7 @@ import ca.nick.rxcbcmpx.utils.Constants;
 import io.reactivex.Flowable;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface TpFeedService {
@@ -13,5 +14,9 @@ public interface TpFeedService {
 
     @Headers(Constants.USER_AGENT)
     @GET("?")
-    Flowable<TpFeedItem> tpFeedItems(@Query("byGuid") String guid);
+    Flowable<TpFeedItem> byGuid(@Query("byGuid") String guid);
+
+    @Headers(Constants.USER_AGENT)
+    @GET("?range=1-1&sort=pubDate|desc&byCustomValue={cbc$show} {The National - Full Show},{cbc$type} {Full Program}")
+    Flowable<TpFeedItem> latestNatlEpisode();
 }

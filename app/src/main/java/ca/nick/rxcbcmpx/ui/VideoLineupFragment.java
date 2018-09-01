@@ -1,6 +1,5 @@
 package ca.nick.rxcbcmpx.ui;
 
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -27,15 +26,12 @@ import javax.inject.Inject;
 import ca.nick.rxcbcmpx.R;
 import ca.nick.rxcbcmpx.models.VideoItem;
 import ca.nick.rxcbcmpx.utils.Resource;
-import dagger.android.support.DaggerFragment;
 import im.ene.toro.widget.Container;
 
-public class VideoLineupFragment extends DaggerFragment {
+public class VideoLineupFragment extends BaseFragment {
 
     public static final String TAG = VideoLineupFragment.class.getSimpleName();
 
-    @Inject
-    ViewModelProvider.Factory viewModelFactory;
     @Inject
     VideoAdapter adapter;
 
@@ -65,7 +61,6 @@ public class VideoLineupFragment extends DaggerFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
         setHasOptionsMenu(true);
     }
 
@@ -173,6 +168,10 @@ public class VideoLineupFragment extends DaggerFragment {
         switch (item.getItemId()) {
             case R.id.downloadVideos: {
                 loadVideos();
+                return true;
+            }
+            case R.id.goToAdsCcVideo: {
+                navigationController.navigateToAdsCcFragment();
                 return true;
             }
             default:
