@@ -18,7 +18,8 @@ public class AggregateItem {
     private static final String MPX_SOURCE = "mpx";
     private static final String POLOPOLY_SOURCE = "Polopoly";
 
-    public AggregateItem(String id, String title,
+    public AggregateItem(String id,
+                         String title,
                          String description,
                          String source,
                          String sourceId,
