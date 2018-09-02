@@ -44,7 +44,6 @@ public class VideoRepositoryTest {
     private TpFeedService tpFeedService;
     @Mock
     private AggregateItem aggregateItem;
-    private List<AggregateItem> aggregateItems = new ArrayList<>();
     @Mock
     private PolopolyItem polopolyItem;
     @Mock
@@ -52,6 +51,7 @@ public class VideoRepositoryTest {
     @Mock
     private TpFeedItem tpFeedItem;
 
+    private List<AggregateItem> aggregateItems = new ArrayList<>();
     private VideoRepository videoRepository;
 
     private static final String FAKE_SOURCE_ID = "1.2345678";
