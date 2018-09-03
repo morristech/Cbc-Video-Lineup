@@ -50,7 +50,7 @@ public class VideoRepository {
         return localVideoItems;
     }
 
-    public Completable nukeThenfetchThenPersistVideos() {
+    public Completable nukeThenFetchThenPersistVideos() {
         return nukeDatabase()
                 .andThen(fetchVideoContent())
                 .flatMapCompletable(this::insertLocally);

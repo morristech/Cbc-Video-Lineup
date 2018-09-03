@@ -42,15 +42,9 @@ public class VideoViewModel extends ViewModel {
 
     public void loadVideos() {
         clearRequestsInFlight();
-        videoRepository.nukeThenfetchThenPersistVideos()
+        videoRepository.nukeThenFetchThenPersistVideos()
                 .compose(RxExtensions.applySchedulersCompletable())
                 .subscribe(createStateManager());
-    }
-
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        compositeDisposable.dispose();
     }
 
     private void clearRequestsInFlight() {
@@ -73,8 +67,13 @@ public class VideoViewModel extends ViewModel {
             @Override
             public void onError(Throwable e) {
                 state.setValue(Resource.error(e));
-
             }
         };
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        compositeDisposable.dispose();
     }
 }
