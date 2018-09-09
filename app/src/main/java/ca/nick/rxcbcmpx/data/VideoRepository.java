@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import ca.nick.rxcbcmpx.models.AggregateItem;
 import ca.nick.rxcbcmpx.models.PolopolyItem;
 import ca.nick.rxcbcmpx.models.ThePlatformItem;
 import ca.nick.rxcbcmpx.models.TpFeedItem;
@@ -60,22 +61,24 @@ public class VideoRepository {
         return aggregateApiService.topStoriesVideos()
                 .retry(NUM_RETRY_ATTEMPTS)
                 .flatMap(Flowable::fromIterable)
-                .flatMap(aggregateItem -> {
-                    Flowable<TpFeedItem> tpFeedItemFlowable;
-
-                    if (aggregateItem.isPolopolySource()) {
-                        tpFeedItemFlowable = fetchPolopolyItem(aggregateItem.getSourceId())
-                                .flatMap(polopolyItem -> fetchTpFeedItemByGuid(polopolyItem.getMediaid()));
-                    } else {
-                        tpFeedItemFlowable = fetchTpFeedItemByGuid(aggregateItem.getMpxSourceGuid());
-                    }
-
-                    return tpFeedItemFlowable
-                            .doOnNext(tpFeedItem -> tpFeedItem.setAggregateItem(aggregateItem));
-                })
-                .flatMap(tpFeedItem -> fetchThePlatformItem(tpFeedItem.getSmilUrlId())
-                        .doOnNext(thePlatformItem -> thePlatformItem.setTpFeedItem(tpFeedItem)))
+                .flatMap(this::fetchTpFeedItemFromAggregateItem,
+                        (aggregateItem, tpFeedItem) -> tpFeedItem.setAggregateItem(aggregateItem))
+                .flatMap(tpFeedItem -> fetchThePlatformItem(tpFeedItem.getSmilUrlId()),
+                        (tpFeedItem, thePlatformItem) -> thePlatformItem.setTpFeedItem(tpFeedItem))
                 .map(VideoItem::fromRemoteData);
+    }
+
+    private Flowable<TpFeedItem> fetchTpFeedItemFromAggregateItem(AggregateItem aggregateItem) {
+        Flowable<TpFeedItem> tpFeedItemFlowable;
+
+        if (aggregateItem.isPolopolySource()) {
+            tpFeedItemFlowable = fetchPolopolyItem(aggregateItem.getSourceId())
+                    .flatMap(polopolyItem -> fetchTpFeedItemByGuid(polopolyItem.getMediaid()));
+        } else {
+            tpFeedItemFlowable = fetchTpFeedItemByGuid(aggregateItem.getMpxSourceGuid());
+        }
+
+        return tpFeedItemFlowable;
     }
 
     private Flowable<PolopolyItem> fetchPolopolyItem(String sourceId) {

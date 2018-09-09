@@ -95,6 +95,6 @@ public class VideoRepositoryTest {
         videoRepository.fetchVideoContent()
                 .test();
 
-        verify(polopolyService, times(0)).story(FAKE_SOURCE_ID);
+        verify(polopolyService, times(0)).story(anyString());
     }
 }
