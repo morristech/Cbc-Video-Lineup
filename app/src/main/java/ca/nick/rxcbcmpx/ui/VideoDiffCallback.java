@@ -14,6 +14,9 @@ public class VideoDiffCallback extends DiffUtil.ItemCallback<VideoItem> {
         return Holder.INSTANCE;
     }
 
+    private VideoDiffCallback() {
+    }
+
     @Override
     public boolean areItemsTheSame(VideoItem oldItem, VideoItem newItem) {
         return oldItem.getGuid() == newItem.getGuid();
