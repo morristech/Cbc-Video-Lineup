@@ -6,18 +6,12 @@ import ca.nick.rxcbcmpx.models.VideoItem;
 
 public class VideoDiffCallback extends DiffUtil.ItemCallback<VideoItem> {
 
-    private static VideoDiffCallback INSTANCE;
+    private static class Holder {
+        private static final VideoDiffCallback INSTANCE = new VideoDiffCallback();
+    }
 
     public static VideoDiffCallback getInstance() {
-        if (INSTANCE == null) {
-            synchronized (VideoDiffCallback.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new VideoDiffCallback();
-                }
-            }
-        }
-
-        return INSTANCE;
+        return Holder.INSTANCE;
     }
 
     @Override
